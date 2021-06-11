@@ -15,4 +15,3 @@
 from securicad.model.model import Model
 
 __version__ = "0.0.1"
-__author__ = "Foreseeti AB"

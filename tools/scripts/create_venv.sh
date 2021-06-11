@@ -6,7 +6,7 @@ cd "$(dirname "$0")/../.."
 
 repo_dir="$PWD"
 venv_dir="$repo_dir/venv"
-dev_reqs="dev-requirements.txt"
+dev_reqs_file="$repo_dir/dev-requirements.txt"
 
 create_venv() {
   echo "Creating virtual Python environment"
@@ -22,13 +22,14 @@ install_package() {
 }
 
 sync_requirements() {
-  echo "Synchronizing $dev_reqs"
-  pip-sync --quiet "$dev_reqs"
+  echo "Synchronizing and $dev_reqs_file"
+  pip-sync --quiet "$dev_reqs_file"
 }
 
 main() {
   create_venv
   install_package pip
+  install_package setuptools
   install_package wheel
   install_package pip-tools
   sync_requirements

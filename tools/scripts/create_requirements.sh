@@ -6,8 +6,7 @@ cd "$(dirname "$0")/../.."
 
 repo_dir="$PWD"
 venv_dir="$repo_dir/requirements-venv"
-dev_reqs_in="dev-requirements.in"
-dev_reqs_out="dev-requirements.txt"
+dev_reqs_file="$repo_dir/dev-requirements.txt"
 
 create_venv() {
   echo "Creating virtual Python environment"
@@ -31,14 +30,21 @@ install_package() {
 compile_requirements() {
   export CUSTOM_COMPILE_COMMAND="./tools/scripts/create_requirements.sh"
 
-  echo "Compiling $dev_reqs_out"
-  rm -f "$dev_reqs_out"
-  pip-compile --quiet --upgrade --no-emit-index-url "$dev_reqs_in"
+  echo "Compiling $dev_reqs_file"
+  rm -f "$dev_reqs_file"
+  pip-compile \
+    --quiet \
+    --extra dev \
+    --upgrade \
+    --output-file "$dev_reqs_file" \
+    --no-emit-index-url \
+    setup.cfg
 }
 
 main() {
   create_venv
   install_package pip
+  install_package setuptools
   install_package wheel
   install_package pip-tools
   compile_requirements
