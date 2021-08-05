@@ -16,7 +16,7 @@ create_venv() {
 }
 
 run_mypy() {
-  mypy --namespace-packages -p securicad.model
+  mypy --namespace-packages -p securicad.langspec -p securicad.model
 }
 
 main() {

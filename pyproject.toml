@@ -13,8 +13,18 @@ target-version = ["py38"]
 python_version = "3.8"
 
 [tool.pylint.messages_control]
-# https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#pylint
-disable = "C0330, C0326"
+# C0330, C0326: https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#pylint
+# C0114: missing-module-docstring
+# C0115: missing-class-docstring
+# C0116: missing-function-docstring
+# C0301: line-too-long
+# W0212: protected-access
+# R0201: no-self-use
+# R0902: too-many-instance-attributes
+# R0903: too-few-public-methods
+# R0911: too-many-return-statements
+disable = "C0330, C0326, C0114, C0115, C0116, C0301, W0212, R0201, R0902, R0903, R0911"
 
 [tool.pylint.format]
 max-line-length = "88"
+good-names = "fp"

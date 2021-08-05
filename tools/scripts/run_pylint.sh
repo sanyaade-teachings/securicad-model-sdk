@@ -32,7 +32,7 @@ run_pylint() {
   delete_fake_namespace
   create_fake_namespace
   set +e
-  pylint securicad.model
+  pylint securicad.langspec securicad.model
   status=$?
   set -e
   delete_fake_namespace

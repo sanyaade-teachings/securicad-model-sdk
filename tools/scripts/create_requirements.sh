@@ -6,6 +6,7 @@ cd "$(dirname "$0")/../.."
 
 repo_dir="$PWD"
 venv_dir="$repo_dir/requirements-venv"
+reqs_file="$repo_dir/requirements.txt"
 dev_reqs_file="$repo_dir/dev-requirements.txt"
 
 create_venv() {
@@ -29,6 +30,15 @@ install_package() {
 
 compile_requirements() {
   export CUSTOM_COMPILE_COMMAND="./tools/scripts/create_requirements.sh"
+
+  echo "Compiling $reqs_file"
+  rm -f "$reqs_file"
+  pip-compile \
+    --quiet \
+    --upgrade \
+    --output-file "$reqs_file" \
+    --no-emit-index-url \
+    setup.cfg
 
   echo "Compiling $dev_reqs_file"
   rm -f "$dev_reqs_file"
