@@ -4,38 +4,42 @@
 #
 #    ./tools/scripts/create_requirements.sh
 #
-appdirs==1.4.4
-    # via black
-astroid==2.6.6
+astroid==2.8.0
     # via pylint
 attrs==21.2.0
-    # via jsonschema
-black==21.7b0
+    # via
+    #   jsonschema
+    #   pytest
+black==21.9b0
     # via securicad-model (setup.cfg)
-bleach==4.0.0
+bleach==4.1.0
     # via readme-renderer
-build==0.5.1
+build==0.7.0
     # via securicad-model (setup.cfg)
 certifi==2021.5.30
     # via requests
 cffi==1.14.6
     # via cryptography
-charset-normalizer==2.0.4
+charset-normalizer==2.0.6
     # via requests
 click==8.0.1
     # via black
 colorama==0.4.4
     # via twine
-cryptography==3.4.7
+coverage==5.5
+    # via securicad-model (setup.cfg)
+cryptography==3.4.8
     # via secretstorage
 docutils==0.17.1
     # via readme-renderer
 idna==3.2
     # via requests
-importlib-metadata==4.6.3
+importlib-metadata==4.8.1
     # via
     #   keyring
     #   twine
+iniconfig==1.1.1
+    # via pytest
 isort==5.9.3
     # via
     #   pylint
@@ -46,7 +50,7 @@ jeepney==0.7.1
     #   secretstorage
 jsonschema==3.2.0
     # via securicad-model (setup.cfg)
-keyring==23.0.1
+keyring==23.2.1
     # via twine
 lazy-object-proxy==1.6.0
     # via astroid
@@ -62,25 +66,36 @@ packaging==21.0
     # via
     #   bleach
     #   build
+    #   pytest
 pathspec==0.9.0
     # via black
 pep517==0.11.0
     # via build
 pkginfo==1.7.1
     # via twine
+platformdirs==2.3.0
+    # via
+    #   black
+    #   pylint
+pluggy==1.0.0
+    # via pytest
+py==1.10.0
+    # via pytest
 pycparser==2.20
     # via cffi
-pygments==2.9.0
+pygments==2.10.0
     # via readme-renderer
-pylint==2.9.6
+pylint==2.11.1
     # via securicad-model (setup.cfg)
 pyparsing==2.4.7
     # via packaging
 pyrsistent==0.18.0
     # via jsonschema
+pytest==6.2.5
+    # via securicad-model (setup.cfg)
 readme-renderer==29.0
     # via twine
-regex==2021.8.3
+regex==2021.8.28
     # via black
 requests==2.26.0
     # via
@@ -99,21 +114,26 @@ six==1.16.0
     #   readme-renderer
 toml==0.10.2
     # via
-    #   build
     #   mypy
     #   pylint
-tomli==1.2.0
+    #   pytest
+tomli==1.2.1
     # via
     #   black
+    #   build
     #   pep517
-tqdm==4.62.0
+tqdm==4.62.3
     # via twine
 twine==3.4.2
     # via securicad-model (setup.cfg)
 types-jsonschema==3.2.0
     # via securicad-model (setup.cfg)
-typing-extensions==3.10.0.0
-    # via mypy
+typing-extensions==3.10.0.2
+    # via
+    #   astroid
+    #   black
+    #   mypy
+    #   pylint
 urllib3==1.26.6
     # via requests
 webencodings==0.5.1

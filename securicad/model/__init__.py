@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Foreseeti AB <https://foreseeti.com>
+# Copyright 2021 Foreseeti AB <https://foreseeti.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from securicad.model.model import Model
+# pyright: reportUnusedImport=false
 
-__version__ = "0.0.2"
+__version__ = "0.1.0"
+
+from .association import Association
+from .attacker import Attacker
+from .attackstep import AttackStep
+from .defense import Defense
+from .exception import (
+    InvalidAssetException,
+    InvalidAssociationException,
+    InvalidAttackStepException,
+    InvalidDefenseException,
+    InvalidFieldException,
+    InvalidIconException,
+    InvalidObjectException,
+    LangException,
+    ModelException,
+    MultiplicityException,
+)
+from .icon import Icon
+from .model import Model
+from .object import Object
+from .visual.container import Container
+from .visual.exception import (
+    InvalidGroupException,
+    InvalidViewException,
+    InvalidViewObjectException,
+    VisualException,
+)
+from .visual.group import Group
+from .visual.view import View
+from .visual.viewitem import ViewItem
+from .visual.viewobject import ViewObject

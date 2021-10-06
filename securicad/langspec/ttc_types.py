@@ -17,7 +17,15 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum, unique
-from typing import List
+from typing import Union
+
+
+def wrap_ttc_expression(other: TtcValue) -> TtcExpression:
+    if isinstance(other, TtcExpression):
+        return other
+    if isinstance(other, (float, int)):  # type: ignore
+        return TtcNumber(other)
+    raise NotImplementedError(f"unsupported operand type: '{type(other).__name__}'")
 
 
 @dataclass(frozen=True)
@@ -26,6 +34,39 @@ class TtcExpression(ABC):
     @abstractmethod
     def _abstract():
         pass
+
+    def __add__(self, other: TtcValue) -> TtcAddition:
+        return TtcAddition(self, wrap_ttc_expression(other))
+
+    def __radd__(self, other: float) -> TtcAddition:
+        return TtcAddition(wrap_ttc_expression(other), self)
+
+    def __sub__(self, other: TtcValue) -> TtcSubtraction:
+        return TtcSubtraction(self, wrap_ttc_expression(other))
+
+    def __rsub__(self, other: float) -> TtcSubtraction:
+        return TtcSubtraction(wrap_ttc_expression(other), self)
+
+    def __mul__(self, other: TtcValue) -> TtcMultiplication:
+        return TtcMultiplication(self, wrap_ttc_expression(other))
+
+    def __rmul__(self, other: float) -> TtcMultiplication:
+        return TtcMultiplication(wrap_ttc_expression(other), self)
+
+    def __truediv__(self, other: TtcValue) -> TtcDivision:
+        return TtcDivision(self, wrap_ttc_expression(other))
+
+    def __rtruediv__(self, other: float) -> TtcDivision:
+        return TtcDivision(wrap_ttc_expression(other), self)
+
+    def __pow__(self, other: TtcValue) -> TtcExponentiation:
+        return TtcExponentiation(self, wrap_ttc_expression(other))
+
+    def __rpow__(self, other: float) -> TtcExponentiation:
+        return TtcExponentiation(wrap_ttc_expression(other), self)
+
+
+TtcValue = Union[TtcExpression, int, float]
 
 
 @dataclass(frozen=True)
@@ -72,7 +113,7 @@ class TtcExponentiation(TtcBinaryOperation):
 @dataclass(frozen=True)
 class TtcFunction(TtcExpression):
     distribution: TtcDistribution
-    arguments: List[float]
+    arguments: list[float]
 
     @staticmethod
     def _abstract():

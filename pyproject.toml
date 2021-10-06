@@ -28,3 +28,13 @@ disable = "C0330, C0326, C0114, C0115, C0116, C0301, W0212, R0201, R0902, R0903,
 [tool.pylint.format]
 max-line-length = "88"
 good-names = "fp"
+
+[tool.pyright]
+reportImportCycles = false
+reportPrivateUsage = false
+
+[tool.pytest.ini_options]
+markers = [
+  "object_count",
+  "vehicle_lang",
+]

@@ -1,0 +1,440 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/foreseeti/securicad-model-sdk/master/securicad/model/model.schema.json",
+  "title": "jsonmodelschema",
+  "description": "",
+  "definitions": {
+    "int64": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854776000
+    },
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "field": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.attacker)?$"
+    },
+    "ttcExpression": {
+      "$comment": "Taken from https://raw.githubusercontent.com/mal-lang/mal-langspec/master/src/main/resources/org/mal_lang/langspec/lang.schema.json",
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "enum": [
+                "addition",
+                "subtraction",
+                "multiplication",
+                "division",
+                "exponentiation",
+                "function",
+                "number"
+              ]
+            }
+          },
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "addition",
+                  "subtraction",
+                  "multiplication",
+                  "division",
+                  "exponentiation"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "type": true,
+              "lhs": {
+                "$ref": "#/definitions/ttcExpression"
+              },
+              "rhs": {
+                "$ref": "#/definitions/ttcExpression"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "lhs",
+              "rhs"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "function"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "type": true,
+              "name": {
+                "$ref": "#/definitions/identifier"
+              },
+              "arguments": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "arguments"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "number"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "type": true,
+              "value": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "value"
+            ]
+          }
+        }
+      ]
+    },
+    "meta": {
+      "type": "object"
+    },
+    "modelmeta": {
+      "type": "object",
+      "properties": {
+        "langId": {
+          "type": "string"
+        },
+        "langVersion": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        }
+      },
+      "required": [
+        "langId",
+        "langVersion"
+      ]
+    },
+    "object": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "$ref": "#/definitions/meta"
+        },
+        "name": {
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/definitions/int64"
+        },
+        "asset_type": {
+          "$ref": "#/definitions/identifier"
+        },
+        "attack_steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/attack_step"
+          }
+        },
+        "defenses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/defense"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "id",
+        "asset_type",
+        "attack_steps",
+        "defenses"
+      ]
+    },
+    "attack_step": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "$ref": "#/definitions/meta"
+        },
+        "name": {
+          "$ref": "#/definitions/identifier"
+        },
+        "ttc": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/ttcExpression"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "ttc"
+      ]
+    },
+    "defense": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "$ref": "#/definitions/meta"
+        },
+        "name": {
+          "$ref": "#/definitions/identifier"
+        },
+        "probability": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "probability"
+      ]
+    },
+    "association": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "$ref": "#/definitions/meta"
+        },
+        "source_object_id": {
+          "$ref": "#/definitions/int64"
+        },
+        "source_field": {
+          "$ref": "#/definitions/field"
+        },
+        "target_object_id": {
+          "$ref": "#/definitions/int64"
+        },
+        "target_field": {
+          "$ref": "#/definitions/field"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "source_object_id",
+        "source_field",
+        "target_object_id",
+        "target_field"
+      ]
+    },
+    "view": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "$ref": "#/definitions/meta"
+        },
+        "name": {
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/definitions/int64"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/view_object"
+              },
+              {
+                "$ref": "#/definitions/view_group"
+              }
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "id",
+        "items"
+      ]
+    },
+    "view_object": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "$ref": "#/definitions/meta"
+        },
+        "type": {
+          "const": "object"
+        },
+        "id": {
+          "$ref": "#/definitions/int64"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "x",
+        "y"
+      ]
+    },
+    "view_group": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "$ref": "#/definitions/meta"
+        },
+        "type": {
+          "const": "group"
+        },
+        "name": {
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/definitions/int64"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/view_object"
+              },
+              {
+                "$ref": "#/definitions/view_group"
+              }
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "name",
+        "id",
+        "icon",
+        "x",
+        "y",
+        "items"
+      ]
+    },
+    "icon": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "$ref": "#/definitions/meta"
+        },
+        "name": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "data": {
+          "type": "string",
+          "contentEncoding": "base64"
+        },
+        "license": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "format",
+        "data",
+        "license"
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "meta": {
+      "$ref": "#/definitions/modelmeta"
+    },
+    "name": {
+      "type": "string"
+    },
+    "objects": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/object"
+      }
+    },
+    "associations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/association"
+      }
+    },
+    "views": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/view"
+      }
+    },
+    "icons": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/icon"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "objects",
+    "associations",
+    "views",
+    "icons"
+  ]
+}

@@ -52,4 +52,6 @@ from .ttc_types import (
     TtcMultiplication,
     TtcNumber,
     TtcSubtraction,
+    TtcValue,
+    wrap_ttc_expression,
 )

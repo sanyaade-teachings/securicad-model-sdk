@@ -1,0 +1,25 @@
+{
+  "name": "",
+  "meta": {},
+  "objects": [
+    {
+      "meta": {},
+      "id": 1,
+      "name": "",
+      "asset_type": "",
+      "attack_steps": [
+        {
+          "meta": {},
+          "name": "",
+          "ttc": {
+            "type": "?"
+          }
+        }
+      ],
+      "defenses": []
+    }
+  ],
+  "associations": [],
+  "views": [],
+  "icons": []
+}

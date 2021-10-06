@@ -1,0 +1,44 @@
+{
+  "name": "unnamed",
+  "meta": {
+    "langId": "null",
+    "langVersion": "0.0.0"
+  },
+  "objects": [
+    {
+      "meta": {},
+      "id": 1,
+      "name": "",
+      "asset_type": "ECU",
+      "attack_steps": [
+        {
+          "meta": {
+            "consequence": 2
+          },
+          "name": "shutdown",
+          "ttc": null
+        }
+      ],
+      "defenses": []
+    },
+    {
+      "meta": {},
+      "id": 2,
+      "name": "",
+      "asset_type": "Attacker",
+      "attack_steps": [],
+      "defenses": []
+    }
+  ],
+  "associations": [
+    {
+      "meta": {},
+      "target_object_id": 2,
+      "target_field": "firstSteps",
+      "source_object_id": 1,
+      "source_field": "access.attacker"
+    }
+  ],
+  "views": [],
+  "icons": []
+}

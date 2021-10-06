@@ -1,0 +1,142 @@
+{
+  "name": "unnamed",
+  "meta": {
+    "langId": "org.mal-lang.vehiclelang",
+    "langVersion": "1.0.0"
+  },
+  "objects": [
+    {
+      "meta": {},
+      "id": 1,
+      "name": "Base ECU",
+      "asset_type": "ECU",
+      "attack_steps": [
+        {
+          "meta": {},
+          "name": "shutdown",
+          "ttc": {
+            "type": "number",
+            "value": 2
+          }
+        },
+        {
+          "meta": {},
+          "name": "access",
+          "ttc": {
+            "type": "division",
+            "lhs": {
+              "type": "addition",
+              "lhs": {
+                "type": "function",
+                "name": "Exponential",
+                "arguments": [
+                  0.6
+                ]
+              },
+              "rhs": {
+                "type": "number",
+                "value": 5
+              }
+            },
+            "rhs": {
+              "type": "number",
+              "value": 12
+            }
+          }
+        }
+      ],
+      "defenses": [
+        {
+          "meta": {
+            "dsiabled": true
+          },
+          "name": "operationModeProtection",
+          "probability": 0.5
+        }
+      ]
+    },
+    {
+      "meta": {},
+      "id": 2,
+      "name": "Attacker",
+      "asset_type": "Attacker",
+      "attack_steps": [],
+      "defenses": []
+    },
+    {
+      "meta": {
+        "my_tag": true
+      },
+      "id": 3,
+      "name": "",
+      "asset_type": "Firmware",
+      "attack_steps": [],
+      "defenses": []
+    }
+  ],
+  "associations": [
+    {
+      "meta": {},
+      "source_object_id": 2,
+      "source_field": "firstSteps",
+      "target_object_id": 1,
+      "target_field": "access.attacker"
+    },
+    {
+      "meta": {},
+      "source_object_id": 3,
+      "source_field": "hardware",
+      "target_object_id": 1,
+      "target_field": "firmware"
+    }
+  ],
+  "views": [
+    {
+      "meta": {},
+      "id": 4,
+      "name": "default",
+      "items": [
+        {
+          "meta": {},
+          "id": 3,
+          "x": 0,
+          "y": 0,
+          "type": "object"
+        },
+        {
+          "meta": {
+            "color": [
+              255,
+              0,
+              0
+            ]
+          },
+          "id": 5,
+          "name": "Group",
+          "items": [
+            {
+              "meta": {},
+              "id": 1,
+              "x": 0,
+              "y": 0,
+              "type": "object"
+            }
+          ],
+          "x": 0,
+          "y": 0,
+          "icon": "Icon",
+          "type": "group"
+        }
+      ]
+    }
+  ],
+  "icons": [
+    {
+      "name": "Icon",
+      "license": "license",
+      "data": "iVBORw0KGgo=",
+      "format": "png",
+      "meta": {}
+    }
+  ]
+}

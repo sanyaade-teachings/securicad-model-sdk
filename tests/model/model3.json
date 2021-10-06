@@ -1,0 +1,140 @@
+{
+  "name": "unnamed",
+  "meta": {
+    "langId": "null",
+    "langVersion": "0.0.0"
+  },
+  "objects": [
+    {
+      "meta": {},
+      "id": 1,
+      "name": "ecu1",
+      "asset_type": "ECU",
+      "attack_steps": [
+        {
+          "meta": {},
+          "name": "att",
+          "ttc": {
+            "type": "number",
+            "value": 1
+          }
+        }
+      ],
+      "defenses": [
+        {
+          "meta": {},
+          "name": "def",
+          "probability": 0.3
+        }
+      ]
+    },
+    {
+      "meta": {},
+      "id": 2,
+      "name": "ecu2",
+      "asset_type": "ECU",
+      "attack_steps": [],
+      "defenses": []
+    },
+    {
+      "meta": {},
+      "id": 3,
+      "name": "ecu3",
+      "asset_type": "ECU",
+      "attack_steps": [],
+      "defenses": []
+    },
+    {
+      "meta": {},
+      "id": 4,
+      "name": "Attacker",
+      "asset_type": "Attacker",
+      "attack_steps": [],
+      "defenses": []
+    },
+    {
+      "meta": {},
+      "id": 8,
+      "name": "firmware",
+      "asset_type": "Firmware",
+      "attack_steps": [],
+      "defenses": []
+    },
+    {
+      "meta": {},
+      "id": 9,
+      "name": "",
+      "asset_type": "Unknown",
+      "attack_steps": [],
+      "defenses": []
+    }
+  ],
+  "associations": [
+    {
+      "meta": {},
+      "source_object_id": 1,
+      "source_field": "firmware",
+      "target_object_id": 8,
+      "target_field": "hardware"
+    },
+    {
+      "meta": {},
+      "source_object_id": 2,
+      "source_field": "firmware",
+      "target_object_id": 8,
+      "target_field": "hardware"
+    },
+    {
+      "meta": {},
+      "source_object_id": 3,
+      "source_field": "firmware",
+      "target_object_id": 8,
+      "target_field": "hardware"
+    },
+    {
+      "meta": {},
+      "source_object_id": 4,
+      "source_field": "firstSteps",
+      "target_object_id": 1,
+      "target_field": "access.attacker"
+    },
+    {
+      "meta": {},
+      "source_object_id": 8,
+      "source_field": "from",
+      "target_object_id": 1,
+      "target_field": "to"
+    }
+  ],
+  "views": [
+    {
+      "meta": {},
+      "id": 5,
+      "name": "default",
+      "items": [
+        {
+          "meta": {},
+          "id": 6,
+          "name": "g",
+          "items": [
+            {
+              "meta": {},
+              "id": 7,
+              "name": "g",
+              "items": [],
+              "x": 0,
+              "y": 0,
+              "icon": "?",
+              "type": "group"
+            }
+          ],
+          "x": 0,
+          "y": 0,
+          "icon": "?",
+          "type": "group"
+        }
+      ]
+    }
+  ],
+  "icons": []
+}
