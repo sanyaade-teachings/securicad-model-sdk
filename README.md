@@ -1,6 +1,6 @@
 # securiCAD Model SDK
 
-A Python SDK for managing models for [foreseeti's securiCAD](https://foreseeti.com/securicad/) products
+A Python SDK for managing models for [foreseeti's securiCAD](https://foreseeti.com/securicad/) products.
 
 ## Installation
 
@@ -12,29 +12,82 @@ pip install securicad-model
 
 ## Overview
 
-This package contains a class `Model`. It can be imported with:
+This package contains a class `Model` which can be used to read and write models in JSON and sCAD formats.
+
+### Loading language from a `.mar` file
+
+Models with a loaded `.mar` file (created by [malc](https://github.com/mal-lang/malc)) will not permit changes that would make the model invalid. Lower bound multiplicity and attacker errors are still permitted and should be checked manually. The example below uses [vehicleLang](https://github.com/mal-lang/vehicleLang).
 
 ```python
+from securicad.langspec import Lang
 from securicad.model import Model
+
+# Create model with a loaded language.
+vehicle_lang = Lang("org.mal-lang.vehiclelang-1.0.0.mar")
+model = Model(lang=vehicle_lang)
+
+# Create ECU, Firmware, and Attacker objects.
+ecu = model.create_object("ECU")
+firmware = model.create_object("Firmware")
+attacker = model.create_attacker()
+
+# Connect ECU and Firmware. Allow the attacker to upload malicious firmware.
+ecu.field("firmware").connect(firmware.field("hardware"))
+attacker.connect(ecu.attack_step("maliciousFirmwareUpload"))
+
+# Assert that there are no multiplicity or attacker errors.
+assert len(model.multiplicity_errors) == 0
+assert len(model.attacker_errors) == 0
+# This can also be done using the `.validate()` method.
+assert len(model.validate()) == 0
+
+# Print the model.
+print(model.to_dict())
 ```
 
-When working with models, you can also load a language as a `.mar` file (created by [malc](https://github.com/mal-lang/malc)). Working on a model with a language loaded will not permit changes that would make the model invalid. Models also have a list of attacker and multiplicity errors that need to be checked manually.
+### Specifying language ID and version
 
-A deserialized model with a loaded language may be in an invalid state. After deserializing a model, you must call `model.validate()` which returns a list of errors. Usage examples can be found in `tests/model/`.
+Strict validation using `.mar` files is not required, instead language ID and version may be specified. This will allow invalid models to be read and written, something that may be useful when updating models across language versions. The example below uses a fictional vehicleLang version `4.6.8`.
+```python
+from securicad.model import Model
 
+# Create model with a language ID and version.
+model = Model(lang_id="org.mal-lang.vehiclelang", lang_version="4.6.8")
+
+# Construct model...
+```
+
+### Working with `.sCAD`
+
+`.sCAD` files can be read and written directly by the SDK, with or without language validation.
+```python
+from securicad.langspec import Lang
+from securicad.model import Model
+
+# Load truck.sCAD model with validation.
+vehicle_lang = Lang("org.mal-lang.vehiclelang-1.0.0.mar")
+model = Model.read_scad("truck.sCAD", lang=vehicle_lang)
+```
+```python
+from securicad.model import Model
+
+# Load truck.sCAD model without validation.
+model = Model.read_scad("truck.sCAD", lang_id="org.mal-lang.vehiclelang", lang_version="4.6.8")
+```
 ## Examples
+
 ```python
 # Create a model with a single attacker connected to a PC. Assert that the model is valid and print it.
 from securicad.model import Model
 
-model = Model()
+model = Model(lang_id="my.custom.lang", lang_version="1.0.0")
 machine = model.create_object("Machine", "PC")
 attacker = model.create_attacker()
 machine.attack_step("compromise").meta["consequence"] = 5
 attacker.connect(machine.attack_step("compromise"))
 
-assert not model.multiplicity_errors
-assert not model.attacker_errors
+# Assert that there are no mulitplicity or attacker errors.
+assert len(model.validate()) == 0
 
 print(model.to_dict())
 ```
@@ -43,16 +96,16 @@ print(model.to_dict())
 from securicad.model import Model
 from securicad.langspec import TtcDistribution, TtcFunction
 
-model = Model()
+model = Model(lang_id="my.custom.lang", lang_version="1.0.0")
 server = model.create_object("Server", "Mainframe")
 client = model.create_object("Client", "iPhone")
-model.create_association(server, "phones", client, "server")
+server.field("phones").connect(client.field("server"))
 client.attack_step("access").ttc = TtcFunction(TtcDistribution.EXPONENTIAL, [0.5]) + 2
 attacker = model.create_attacker()
 attacker.connect(client.attack_step("access"))
 
-assert not model.multiplicity_errors
-assert not model.attacker_errors
+# Assert that there are no mulitplicity or attacker errors.
+assert len(model.validate()) == 0
 
 print(model.to_dict())
 ```

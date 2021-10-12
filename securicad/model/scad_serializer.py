@@ -362,15 +362,14 @@ def serialize_object(obj: Object) -> ObjectModelPackage.XMIObject:
     )
     xmi_object.description = obj.meta.get("description", None)
 
-    if "existence" in obj.meta:
-        xmi_object.existence = ObjectModelPackage.XMIDistribution(
-            type="Bernoulli",
-            parameters=[
-                ObjectModelPackage.XMIDistributionParameter(
-                    name="probability", value=float(obj.meta["existence"])
-                )
-            ],
-        )
+    xmi_object.existence = ObjectModelPackage.XMIDistribution(
+        type="Bernoulli",
+        parameters=[
+            ObjectModelPackage.XMIDistributionParameter(
+                name="probability", value=float(obj.meta.get("existence", 1))
+            )
+        ],
+    )
 
     xmi_object.evidenceAttributes.extend(  # type: ignore
         serialize_attack_step(attack_step) for attack_step in obj._attack_steps.values()
