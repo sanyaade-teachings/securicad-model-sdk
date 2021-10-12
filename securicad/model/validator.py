@@ -16,7 +16,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..langspec import AttackStepType
+from securicad.langspec import AttackStepType
+
 from .attacker import Attacker
 from .exception import (
     InvalidAssetException,

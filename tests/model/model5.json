@@ -1,0 +1,248 @@
+{
+  "name": "unnamed",
+  "meta": {
+    "langId": "com.foreseeti.securilang",
+    "langVersion": "2.1.9",
+    "warningThreshold": 99,
+    "samples": 999
+  },
+  "objects": [
+    {
+      "meta": {
+        "description": "",
+        "existence": 1
+      },
+      "id": 1,
+      "name": "Attacker",
+      "asset_type": "Attacker",
+      "attack_steps": [],
+      "defenses": []
+    },
+    {
+      "meta": {
+        "description": "",
+        "existence": 1
+      },
+      "id": 2,
+      "name": "Client",
+      "asset_type": "Client",
+      "attack_steps": [
+        {
+          "meta": {
+            "description": ""
+          },
+          "name": "Patched",
+          "ttc": null
+        }
+      ],
+      "defenses": [
+        {
+          "meta": {},
+          "name": "Patched",
+          "probability": 0.37
+        }
+      ]
+    },
+    {
+      "meta": {
+        "description": "",
+        "existence": 1
+      },
+      "id": 3,
+      "name": "SoftwareProduct",
+      "asset_type": "SoftwareProduct",
+      "attack_steps": [
+        {
+          "meta": {
+            "description": ""
+          },
+          "name": "DevelopZeroDay",
+          "ttc": {
+            "type": "function",
+            "name": "Gamma",
+            "arguments": [
+              1.4,
+              0.6
+            ]
+          }
+        }
+      ],
+      "defenses": []
+    },
+    {
+      "meta": {
+        "description": "",
+        "existence": 1
+      },
+      "id": 4,
+      "name": "SoftwareProduct",
+      "asset_type": "SoftwareProduct",
+      "attack_steps": [],
+      "defenses": []
+    },
+    {
+      "meta": {
+        "tags": {
+          "server": "tag"
+        },
+        "description": "",
+        "existence": 1
+      },
+      "id": 5,
+      "name": "Host",
+      "asset_type": "Host",
+      "attack_steps": [
+        {
+          "meta": {
+            "consequence": 1,
+            "description": ""
+          },
+          "name": "Compromise",
+          "ttc": null
+        }
+      ],
+      "defenses": []
+    }
+  ],
+  "associations": [
+    {
+      "meta": {},
+      "source_object_id": 1,
+      "source_field": "firstSteps",
+      "target_object_id": 2,
+      "target_field": "compromise.attacker"
+    },
+    {
+      "meta": {},
+      "source_object_id": 2,
+      "source_field": "rootHost",
+      "target_object_id": 5,
+      "target_field": "rootClients"
+    },
+    {
+      "meta": {},
+      "source_object_id": 3,
+      "source_field": "clients",
+      "target_object_id": 2,
+      "target_field": "softwareProduct"
+    },
+    {
+      "meta": {},
+      "source_object_id": 5,
+      "source_field": "softwareProduct",
+      "target_object_id": 4,
+      "target_field": "hosts"
+    }
+  ],
+  "views": [
+    {
+      "meta": {
+        "loadOnStart": true
+      },
+      "id": 6,
+      "name": "High Value Assets",
+      "items": [
+        {
+          "meta": {},
+          "id": 1,
+          "x": 182,
+          "y": 92,
+          "type": "object"
+        },
+        {
+          "meta": {
+            "color": "#4caf50",
+            "expand": false,
+            "description": "Client group!"
+          },
+          "id": 2648631069477343,
+          "name": "Client",
+          "items": [
+            {
+              "meta": {},
+              "id": 2,
+              "x": 1,
+              "y": -88,
+              "type": "object"
+            },
+            {
+              "meta": {},
+              "id": 3,
+              "x": 32,
+              "y": 94,
+              "type": "object"
+            }
+          ],
+          "x": 352,
+          "y": 295,
+          "icon": "radar",
+          "type": "group"
+        },
+        {
+          "meta": {
+            "color": "#03a9f4",
+            "expand": true,
+            "description": "",
+            "tags": {
+              "server": "tag"
+            }
+          },
+          "id": 9049883380945900,
+          "name": "Encap",
+          "items": [
+            {
+              "meta": {
+                "color": "#e91e63",
+                "expand": true,
+                "description": "This is the server group."
+              },
+              "id": 3659407383211753,
+              "name": "Server",
+              "items": [
+                {
+                  "meta": {},
+                  "id": 5,
+                  "x": -7,
+                  "y": -75,
+                  "type": "object"
+                },
+                {
+                  "meta": {},
+                  "id": 4,
+                  "x": 163,
+                  "y": 79,
+                  "type": "object"
+                }
+              ],
+              "x": 1,
+              "y": 17,
+              "icon": "IPS",
+              "type": "group"
+            }
+          ],
+          "x": 675,
+          "y": 242,
+          "icon": "PhysicalZone",
+          "type": "group"
+        }
+      ]
+    },
+    {
+      "meta": {
+        "loadOnStart": true
+      },
+      "id": 9049883380945901,
+      "name": "High Value Assets",
+      "items": [
+        {
+          "meta": {},
+          "id": 5,
+          "x": 0,
+          "y": 0,
+          "type": "object"
+        }
+      ]
+    }
+  ],
+  "icons": []
+}

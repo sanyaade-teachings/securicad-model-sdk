@@ -6,12 +6,17 @@
 #
 attrs==21.2.0
     # via jsonschema
-jsonschema==3.2.0
+future-fstrings==1.2.0
+    # via pyecore
+jsonschema==4.0.1
+    # via securicad-model (setup.cfg)
+lxml==4.6.3
+    # via pyecore
+ordered-set==4.0.2
+    # via pyecore
+pyecore==0.12.1
     # via securicad-model (setup.cfg)
 pyrsistent==0.18.0
     # via jsonschema
-six==1.16.0
-    # via jsonschema
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools
+restrictedpython==5.1
+    # via pyecore

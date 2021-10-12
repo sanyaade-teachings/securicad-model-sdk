@@ -28,10 +28,25 @@ def vehicle_lang() -> Lang:
     return Lang(Path(__file__).parent.joinpath("org.mal-lang.vehiclelang-1.0.0.mar"))
 
 
-for i in range(4):
+for i in range(5):
     vars()[f"model{i+1}"] = pytest.fixture(scope="session")(
         lambda i=i: json.loads(Path(__file__).parent.joinpath(f"model{i+1}.json").read_text())  # type: ignore
     )
+
+
+@pytest.fixture
+def simple_scad() -> bytes:
+    return Path(__file__).parent.joinpath("simple.sCAD").read_bytes()
+
+
+@pytest.fixture
+def text_scad() -> bytes:
+    return Path(__file__).parent.joinpath("text.sCAD").read_bytes()
+
+
+@pytest.fixture
+def model_scad() -> bytes:
+    return Path(__file__).parent.joinpath("model.sCAD").read_bytes()
 
 
 @pytest.fixture

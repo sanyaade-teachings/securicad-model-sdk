@@ -16,11 +16,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional
 
-from .. import langspec
+from securicad import langspec
+
 from .base import Base
 
 if TYPE_CHECKING:  # pragma: no cover
-    from ..langspec import TtcExpression, TtcValue
+    from securicad.langspec import TtcExpression, TtcValue
+
     from .object import Object
 
 

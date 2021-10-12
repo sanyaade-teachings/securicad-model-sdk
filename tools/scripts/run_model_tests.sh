@@ -16,7 +16,7 @@ create_venv() {
 }
 
 run_pytest() {
-  coverage run --source=./securicad/model/ --branch --module pytest --exitfirst --verbose ./tests/model/
+  coverage run --source=./securicad/model/ --omit=./securicad/model/ModelViewsPackage/*,./securicad/model/ObjectModelPackage/* --branch --module pytest --exitfirst --verbose ./tests/model/
   coverage html --fail-under=100 --skip-covered
 }
 

@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING, Any, Optional, Type
 
 import jsonschema
 
-from ..langspec import (
+from securicad.langspec import (
     Lang,
     TtcAddition,
     TtcBinaryOperation,
@@ -36,6 +36,7 @@ from ..langspec import (
     TtcNumber,
     TtcSubtraction,
 )
+
 from .attacker import Attacker
 from .visual.container import Container
 

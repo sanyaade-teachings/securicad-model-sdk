@@ -17,10 +17,11 @@ from __future__ import annotations
 
 import collections
 import typing
-from typing import Any, DefaultDict, Optional
+from os import PathLike
+from typing import IO, Any, DefaultDict, Optional
 
 from ..langspec import Lang
-from . import serializer, utility
+from . import json_serializer, scad_serializer, utility
 from .association import Association, FieldTarget
 from .attacker import Attacker
 from .base import Base
@@ -70,12 +71,21 @@ class Model(Base):
             Object, list[str]
         ] = collections.defaultdict(list)
 
+    def write_scad(self, file: str | PathLike[Any] | IO[bytes]) -> None:
+        scad_serializer.serialize_model(self, file)
+
+    @staticmethod
+    def read_scad(
+        data: str | PathLike[Any] | IO[bytes], *, lang: Optional[Lang] = None
+    ) -> Model:
+        return scad_serializer.deserialize_model(data, lang=lang)
+
     def to_dict(self, *, sorted: bool = False) -> dict[str, Any]:
-        return serializer.serialize_model(self, sorted)
+        return json_serializer.serialize_model(self, sorted)
 
     @staticmethod
     def from_dict(data: dict[str, Any], *, lang: Optional[Lang] = None) -> Model:
-        return serializer.deserialize_model(data, lang=lang)
+        return json_serializer.deserialize_model(data, lang=lang)
 
     def create_icon(self, name: str, format: str, data: bytes, license: str) -> Icon:
         if name in self._icons:
