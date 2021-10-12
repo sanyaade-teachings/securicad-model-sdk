@@ -3,8 +3,8 @@
   "meta": {
     "langId": "com.foreseeti.securilang",
     "langVersion": "2.1.9",
-    "warningThreshold": 99,
-    "samples": 999
+    "samples": 999,
+    "warningThreshold": 99
   },
   "objects": [
     {
@@ -31,14 +31,14 @@
           "meta": {
             "description": ""
           },
-          "name": "Patched",
+          "name": "patched",
           "ttc": null
         }
       ],
       "defenses": [
         {
           "meta": {},
-          "name": "Patched",
+          "name": "patched",
           "probability": 0.37
         }
       ]
@@ -56,7 +56,7 @@
           "meta": {
             "description": ""
           },
-          "name": "DevelopZeroDay",
+          "name": "developZeroDay",
           "ttc": {
             "type": "function",
             "name": "Gamma",
@@ -94,10 +94,10 @@
       "attack_steps": [
         {
           "meta": {
-            "consequence": 1,
-            "description": ""
+            "description": "",
+            "consequence": 1
           },
-          "name": "Compromise",
+          "name": "compromise",
           "ttc": null
         }
       ],
@@ -182,10 +182,10 @@
           "meta": {
             "color": "#03a9f4",
             "expand": true,
-            "description": "",
             "tags": {
               "server": "tag"
-            }
+            },
+            "description": ""
           },
           "id": 9049883380945900,
           "name": "Encap",

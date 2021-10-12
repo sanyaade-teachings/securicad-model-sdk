@@ -76,9 +76,14 @@ class Model(Base):
 
     @staticmethod
     def read_scad(
-        data: str | PathLike[Any] | IO[bytes], *, lang: Optional[Lang] = None
+        data: str | PathLike[Any] | IO[bytes],
+        *,
+        lang: Optional[Lang] = None,
+        lowercase_attack_step: bool = True,
     ) -> Model:
-        return scad_serializer.deserialize_model(data, lang=lang)
+        return scad_serializer.deserialize_model(
+            data, lang=lang, lowercase_attack_step=lowercase_attack_step
+        )
 
     def to_dict(self, *, sorted: bool = False) -> dict[str, Any]:
         return json_serializer.serialize_model(self, sorted)

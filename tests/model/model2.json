@@ -6,7 +6,9 @@
   },
   "objects": [
     {
-      "meta": {},
+      "meta": {
+        "existence": 1
+      },
       "id": 1,
       "name": "",
       "asset_type": "ECU",
@@ -22,7 +24,9 @@
       "defenses": []
     },
     {
-      "meta": {},
+      "meta": {
+        "existence": 1
+      },
       "id": 2,
       "name": "",
       "asset_type": "Attacker",
