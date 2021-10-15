@@ -17,11 +17,11 @@ from __future__ import annotations
 
 import collections
 import typing
-from os import PathLike
-from typing import IO, Any, DefaultDict, Optional
+from typing import Any, DefaultDict, Optional
 
-from ..langspec import Lang
-from . import json_serializer, scad_serializer, utility
+from securicad.langspec import Lang
+
+from . import utility
 from .association import Association, FieldTarget
 from .attacker import Attacker
 from .base import Base
@@ -46,6 +46,7 @@ class Model(Base):
         lang: Optional[Lang] = None,
         lang_id: Optional[str] = None,
         lang_version: Optional[str] = None,
+        validate_icons: bool = True,
     ):
         if lang:
             super().__init__(
@@ -60,7 +61,7 @@ class Model(Base):
 
         self.name = name
         self._lang = lang
-        self._validator = Validator(self)
+        self._validator = Validator(self, validate_icons)
         self._views: dict[int, View] = {}
         self._objects: dict[int, Object] = {}
         self._attackers: dict[int, Attacker] = {}
@@ -70,27 +71,6 @@ class Model(Base):
         self._multiplicity_errors: DefaultDict[
             Object, list[str]
         ] = collections.defaultdict(list)
-
-    def write_scad(self, file: str | PathLike[Any] | IO[bytes]) -> None:
-        scad_serializer.serialize_model(self, file)
-
-    @staticmethod
-    def read_scad(
-        data: str | PathLike[Any] | IO[bytes],
-        *,
-        lang: Optional[Lang] = None,
-        lowercase_attack_step: bool = True,
-    ) -> Model:
-        return scad_serializer.deserialize_model(
-            data, lang=lang, lowercase_attack_step=lowercase_attack_step
-        )
-
-    def to_dict(self, *, sorted: bool = False) -> dict[str, Any]:
-        return json_serializer.serialize_model(self, sorted)
-
-    @staticmethod
-    def from_dict(data: dict[str, Any], *, lang: Optional[Lang] = None) -> Model:
-        return json_serializer.deserialize_model(data, lang=lang)
 
     def create_icon(self, name: str, format: str, data: bytes, license: str) -> Icon:
         if name in self._icons:

@@ -19,18 +19,18 @@ import pytest
 from jsonschema.exceptions import ValidationError
 
 from securicad.langspec import Lang, TtcDistribution, TtcFunction
-from securicad.model import Model
+from securicad.model import Model, json_serializer
 
 
-def test_deserialize_model2(model2: dict[str, Any], vehicle_lang: Lang):
-    model = Model.from_dict(model2, lang=vehicle_lang)
+def test_deserialize_model2(model2_json: dict[str, Any], vehicle_lang: Lang):
+    model = json_serializer.deserialize_model(model2_json, lang=vehicle_lang)
     assert model._counter == 3
     assert len(model.objects()) == 2
     assert model.object(1).asset_type == "ECU"
     assert not model.validate()
 
 
-def test_create_model3(model: Model, model3: dict[str, Any]):
+def test_create_model3(model: Model, model3_json: dict[str, Any]):
     ecu1 = model.create_object("ECU", "ecu1")
     ecu2 = model.create_object("ECU", "ecu2")
     ecu3 = model.create_object("ECU", "ecu3")
@@ -47,11 +47,11 @@ def test_create_model3(model: Model, model3: dict[str, Any]):
     ecu3.field("firmware").connect(firmware.field("hardware"))
     firmware.field("from").connect(ecu1.field("to"))
     assert not model.validate()
-    assert model.to_dict(sorted=True) == model3
+    assert json_serializer.serialize_model(model, sort=True) == model3_json
 
 
 @pytest.mark.vehicle_lang
-def test_create_model1(model: Model, model1: dict[str, Any]):
+def test_create_model1(model: Model, model1_json: dict[str, Any]):
     ecu = model.create_object("ECU", "Base ECU")
     ecu.defense("operationModeProtection").probability = 0.5
     ecu.defense("operationModeProtection").meta["dsiabled"] = True
@@ -71,24 +71,29 @@ def test_create_model1(model: Model, model1: dict[str, Any]):
     firmware.meta["my_tag"] = True
     group.meta["color"] = [255, 0, 0]
     assert not model.validate()
-    assert model.to_dict(sorted=True) == model1
+    assert json_serializer.serialize_model(model, sort=True) == model1_json
 
 
-def test_validate_model1(model1: dict[str, Any], vehicle_lang: Lang):
-    model = Model.from_dict(model1, lang=vehicle_lang)
+def test_validate_model1(model1_json: dict[str, Any], vehicle_lang: Lang):
+    model = json_serializer.deserialize_model(model1_json, lang=vehicle_lang)
     assert not model.validate()
 
 
-def test_serialize_loop(model1: dict[str, Any], vehicle_lang: Lang):
-    assert Model.from_dict(model1, lang=vehicle_lang).to_dict(sorted=True) == model1
+def test_serialize_loop(model1_json: dict[str, Any], vehicle_lang: Lang):
+    assert (
+        json_serializer.serialize_model(
+            json_serializer.deserialize_model(model1_json, lang=vehicle_lang), sort=True
+        )
+        == model1_json
+    )
 
 
-def test_deserialize_model4(model4: dict[str, Any]):
+def test_deserialize_model4(model4_json: dict[str, Any]):
     with pytest.raises(ValidationError):
-        Model.from_dict(model4)
+        json_serializer.deserialize_model(model4_json)
 
 
 def test_serialize_invalid(model: Model):
     model.create_object("").attack_step("")._ttc = False  # type: ignore
     with pytest.raises(RuntimeError):
-        model.to_dict()
+        json_serializer.serialize_model(model)

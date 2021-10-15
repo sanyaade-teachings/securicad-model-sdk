@@ -38,12 +38,13 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 class Validator:
-    def __init__(self, model: Model) -> None:
+    def __init__(self, model: Model, validate_icons: bool) -> None:
         self.model = model
         self.lang = model._lang
+        self.validate_icons = validate_icons
 
     def validate_icon(self, name: str) -> None:
-        if not self.lang:
+        if not self.lang or not self.validate_icons:
             return
         in_model = name in self.model._icons
         in_lang = name in self.lang.assets and (

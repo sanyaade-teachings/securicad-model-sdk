@@ -20,7 +20,7 @@ Models with a loaded `.mar` file (created by [malc](https://github.com/mal-lang/
 
 ```python
 from securicad.langspec import Lang
-from securicad.model import Model
+from securicad.model import Model, json_serializer
 
 # Create model with a loaded language.
 vehicle_lang = Lang("org.mal-lang.vehiclelang-1.0.0.mar")
@@ -42,7 +42,7 @@ assert len(model.attacker_errors) == 0
 assert len(model.validate()) == 0
 
 # Print the model.
-print(model.to_dict())
+print(json_serializer.serialize_model(model))
 ```
 
 ### Specifying language ID and version
@@ -62,23 +62,26 @@ model = Model(lang_id="org.mal-lang.vehiclelang", lang_version="4.6.8")
 `.sCAD` files can be read and written directly by the SDK, with or without language validation.
 ```python
 from securicad.langspec import Lang
-from securicad.model import Model
+from securicad.model import scad_serializer
 
 # Load truck.sCAD model with validation.
 vehicle_lang = Lang("org.mal-lang.vehiclelang-1.0.0.mar")
-model = Model.read_scad("truck.sCAD", lang=vehicle_lang)
+model = scad_serializer.deserialize_model("truck.sCAD", lang=vehicle_lang)
+
+# Save the model as an sCAD.
+scad_serializer.serialize_model(model, "saved.sCAD")
 ```
 ```python
-from securicad.model import Model
+from securicad.model import scad_serializer
 
 # Load truck.sCAD model without validation.
-model = Model.read_scad("truck.sCAD", lang_id="org.mal-lang.vehiclelang", lang_version="4.6.8")
+model = scad_serializer.deserialize_model("truck.sCAD", lang_id="org.mal-lang.vehiclelang", lang_version="4.6.8")
 ```
 ## Examples
 
 ```python
 # Create a model with a single attacker connected to a PC. Assert that the model is valid and print it.
-from securicad.model import Model
+from securicad.model import Model, json_serializer
 
 model = Model(lang_id="my.custom.lang", lang_version="1.0.0")
 machine = model.create_object("Machine", "PC")
@@ -89,11 +92,11 @@ attacker.connect(machine.attack_step("compromise"))
 # Assert that there are no mulitplicity or attacker errors.
 assert len(model.validate()) == 0
 
-print(model.to_dict())
+print(json_serializer.serialize_model(model))
 ```
 ```python
 # Model a connection between a phone and its server. Compromising the phone takes some additional time.
-from securicad.model import Model
+from securicad.model import Model, json_serializer
 from securicad.langspec import TtcDistribution, TtcFunction
 
 model = Model(lang_id="my.custom.lang", lang_version="1.0.0")
@@ -107,7 +110,7 @@ attacker.connect(client.attack_step("access"))
 # Assert that there are no mulitplicity or attacker errors.
 assert len(model.validate()) == 0
 
-print(model.to_dict())
+print(json_serializer.serialize_model(model))
 ```
 
 

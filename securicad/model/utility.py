@@ -13,7 +13,11 @@
 # limitations under the License.
 from __future__ import annotations
 
-from typing import Any, Iterable, TypeVar
+from functools import lru_cache
+from typing import TYPE_CHECKING, Any, Iterable, Optional, TypeVar
+
+if TYPE_CHECKING:  # pragma: no cover
+    from securicad.langspec import AttackStepType, Lang
 
 T = TypeVar("T")
 
@@ -33,3 +37,31 @@ def iterable_filter(iterable: Iterable[T], **kwargs: Any) -> list[T]:
             for attribute, value in kwargs.items()
         )
     ]
+
+
+def uc_first(value: str) -> str:
+    return value[0].upper() + value[1:]
+
+
+@lru_cache
+def attack_step_lookup(
+    asset_type: str,
+    lang: Optional[Lang],
+    lowercase_attack_step: bool,
+    types_: tuple[AttackStepType],
+):
+    if lang and asset_type != "Attacker":
+        attack_steps = {
+            name.lower(): name
+            for name, attack_step in lang.assets[asset_type].attack_steps.items()
+            if attack_step.type in types_
+        }
+
+    def lookup(attack_step: str):
+        if lang and attack_step.lower() in attack_steps:
+            return attack_steps[attack_step.lower()]
+        if lowercase_attack_step:
+            return attack_step[0].lower() + attack_step[1:]
+        return attack_step
+
+    return lookup

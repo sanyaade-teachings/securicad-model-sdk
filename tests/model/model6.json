@@ -1,0 +1,110 @@
+{
+  "formatversion": 1,
+  "mid": "7306344145926572966793406",
+  "name": "unnamed",
+  "samples": 1000,
+  "threshold": 100,
+  "default": {},
+  "metadata": {
+    "scadVersion": "1.0.0",
+    "isMAL": true,
+    "langVersion": "0.0.0",
+    "langID": "null"
+  },
+  "tags": {},
+  "objects": {
+    "1": {
+      "name": "",
+      "metaconcept": "Computer",
+      "eid": 1,
+      "tags": {},
+      "attacksteps": [
+        {
+          "name": "Access",
+          "consequence": 5,
+          "uppercost": null,
+          "lowercost": null,
+          "distribution": null
+        },
+        {
+          "name": "Enter",
+          "consequence": null,
+          "uppercost": null,
+          "lowercost": null,
+          "distribution": "Exponential,1.2"
+        }
+      ],
+      "defenses": []
+    },
+    "2": {
+      "name": "",
+      "metaconcept": "Network",
+      "eid": 2,
+      "tags": {},
+      "attacksteps": [],
+      "defenses": []
+    },
+    "3": {
+      "name": "Attacker",
+      "metaconcept": "Attacker",
+      "eid": 3,
+      "tags": {},
+      "attacksteps": [],
+      "defenses": []
+    }
+  },
+  "associations": [
+    {
+      "id1": "1",
+      "id2": "2",
+      "link": null,
+      "type2": "networks",
+      "type1": "computers"
+    },
+    {
+      "id1": "3",
+      "id2": "2",
+      "link": null,
+      "type2": "firstSteps",
+      "type1": "compromise.attacker"
+    }
+  ],
+  "groups": {
+    "5": {
+      "name": "Objects",
+      "description": "",
+      "icon": "Icon",
+      "color": "#fff",
+      "expand": false,
+      "tags": {},
+      "objects": {
+        "1": {
+          "x": 10,
+          "y": 10
+        },
+        "2": {
+          "x": 20,
+          "y": 10
+        }
+      }
+    }
+  },
+  "views": [
+    {
+      "name": "Overview",
+      "objects": {
+        "3": {
+          "x": 10,
+          "y": 20
+        }
+      },
+      "groups": {
+        "5": {
+          "x": 10,
+          "y": 40
+        }
+      },
+      "load_on_start": false
+    }
+  ]
+}

@@ -25,7 +25,7 @@ from pyecore.resources.xmi import XMIResource
 
 from securicad.langspec import AttackStepType, Lang, TtcDistribution, TtcFunction
 
-from . import ModelViewsPackage, ObjectModelPackage
+from . import ModelViewsPackage, ObjectModelPackage, utility
 from .attacker import Attacker
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -101,10 +101,6 @@ ObjectModelPackage.XMIObjectModel.xLang = EAttribute("xLang", EString)  # type: 
 Core.register_classifier(ObjectModelPackage.XMIObjectModel, promote=True)  # type: ignore
 
 
-def uc_first(value: str) -> str:
-    return value[0].upper() + value[1:]
-
-
 class BytesURI(URI):
     def __init__(self, uri: str, data: Optional[bytes] = None):
         super().__init__(uri)  # type: ignore
@@ -145,34 +141,12 @@ def is_default_attribute(instance: type, attribute: str) -> bool:
     return value == definition.get_default_value()
 
 
-def attack_step_lookup(
-    asset_type: str,
-    lang: Optional[Lang],
-    lowercase_attack_step: bool,
-    types_: set[AttackStepType],
-):
-    if lang and asset_type != "Attacker":
-        attack_steps = {
-            name.lower(): name
-            for name, attack_step in lang.assets[asset_type].attack_steps.items()
-            if attack_step.type in types_
-        }
-
-    def lookup(attack_step: str):
-        if lang and attack_step.lower() in attack_steps:
-            return attack_steps[attack_step.lower()]
-        if lowercase_attack_step:
-            return attack_step[0].lower() + attack_step[1:]
-        return attack_step
-
-    return lookup
-
-
 def deserialize_model(
     file: str | PathLike[Any] | IO[bytes],
     *,
     lang: Optional[Lang] = None,
     lowercase_attack_step: bool = True,
+    validate_icons: bool = True,
 ) -> Model:
     from .model import Model
 
@@ -210,7 +184,10 @@ def deserialize_model(
                 assert meta["langVersion"] == lang.defines["version"]
 
             model = Model(
-                lang=lang, lang_id=meta["langID"], lang_version=meta["langVersion"]
+                lang=lang,
+                lang_id=meta["langID"],
+                lang_version=meta["langVersion"],
+                validate_icons=validate_icons,
             )
         except StopIteration:
             if lang and lang.defines["id"] != SECURILANG:  # pragma: no cover
@@ -219,6 +196,7 @@ def deserialize_model(
             model = Model(
                 lang_id=SECURILANG,
                 lang_version=eom.xLang,
+                validate_icons=validate_icons,
             )
 
     extract_attributes(model, eom, {"samples", "warningThreshold"})
@@ -241,17 +219,17 @@ def deserialize_model(
             assert len(xmi_distribution.parameters) == 1  # only probability, or fixed
             obj.meta["existence"] = xmi_distribution.parameters[0].value
 
-        attack_lookup = attack_step_lookup(
+        attack_lookup = utility.attack_step_lookup(
             xmi_object.metaConcept,
             lang,
             lowercase_attack_step,
-            {AttackStepType.AND, AttackStepType.OR},
+            (AttackStepType.AND, AttackStepType.OR),
         )
-        defense_lookup = attack_step_lookup(
+        defense_lookup = utility.attack_step_lookup(
             xmi_object.metaConcept,
             lang,
             lowercase_attack_step,
-            {AttackStepType.DEFENSE},
+            (AttackStepType.DEFENSE,),
         )
         for xmi_attribute in xmi_object.evidenceAttributes:
             if (xmi_distribution := xmi_attribute.evidenceDistribution) is not None:
@@ -357,7 +335,7 @@ def deserialize_model(
 
 def serialize_attack_step(attack_step: AttackStep) -> ObjectModelPackage.XMIAttribute:
     xmi_attribute = ObjectModelPackage.XMIAttribute(
-        metaConcept=uc_first(attack_step.name),
+        metaConcept=utility.uc_first(attack_step.name),
         consequence=attack_step.meta.get("consequence", None),
         costUpperLimit=attack_step.meta.get("costUpperLimit", None),
         costLowerLimit=attack_step.meta.get("costLowerLimit", None),
@@ -378,7 +356,9 @@ def serialize_attack_step(attack_step: AttackStep) -> ObjectModelPackage.XMIAttr
 
 
 def serialize_defense(defense: Defense) -> ObjectModelPackage.XMIAttribute:
-    xmi_attribute = ObjectModelPackage.XMIAttribute(metaConcept=uc_first(defense.name))
+    xmi_attribute = ObjectModelPackage.XMIAttribute(
+        metaConcept=utility.uc_first(defense.name)
+    )
     if defense.probability is not None:
         xmi_attribute.evidenceDistribution = ObjectModelPackage.XMIDistribution(
             type="Bernoulli",

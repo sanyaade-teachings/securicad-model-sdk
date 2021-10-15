@@ -14,6 +14,7 @@
 
 import pytest
 
+from securicad.langspec import Lang
 from securicad.model import Icon, InvalidIconException, Model, View
 
 
@@ -21,6 +22,12 @@ from securicad.model import Icon, InvalidIconException, Model, View
 def test_create_invalid(view: View):
     with pytest.raises(InvalidIconException):
         view.create_group("group", "?")
+
+
+def test_create_any(vehicle_lang: Lang):
+    model = Model(lang=vehicle_lang, validate_icons=False)
+    view = model.create_view("view")
+    assert view.create_group("group", "?")
 
 
 def test_get_invalid(model: Model):

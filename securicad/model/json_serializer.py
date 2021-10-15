@@ -143,7 +143,7 @@ def deserialize_ttc(data: dict[str, Any]) -> TtcExpression:
         raise RuntimeError(f"{data} couldn't be deserialized")
 
 
-def serialize_model(model: Model, sort: bool) -> dict[str, Any]:
+def serialize_model(model: Model, *, sort: bool = False) -> dict[str, Any]:
     def sort_dict_list(associations: list[dict[str, Any]]) -> list[dict[str, Any]]:
         return sorted(associations, key=json.dumps) if sort else associations
 
@@ -209,7 +209,9 @@ def serialize_model(model: Model, sort: bool) -> dict[str, Any]:
     return data
 
 
-def deserialize_model(data: dict[str, Any], *, lang: Optional[Lang] = None) -> Model:
+def deserialize_model(
+    data: dict[str, Any], *, lang: Optional[Lang] = None, validate_icons: bool = True
+) -> Model:
     from .model import Model
 
     validate_model_data(data)
@@ -218,6 +220,7 @@ def deserialize_model(data: dict[str, Any], *, lang: Optional[Lang] = None) -> M
         lang=lang,
         lang_id=data["meta"]["langId"],
         lang_version=data["meta"]["langVersion"],
+        validate_icons=validate_icons,
     )
     model.meta = data["meta"]
 

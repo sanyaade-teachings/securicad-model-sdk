@@ -28,25 +28,16 @@ def vehicle_lang() -> Lang:
     return Lang(Path(__file__).parent.joinpath("org.mal-lang.vehiclelang-1.0.0.mar"))
 
 
-for i in range(5):
-    vars()[f"model{i+1}"] = pytest.fixture(scope="session")(
-        lambda i=i: json.loads(Path(__file__).parent.joinpath(f"model{i+1}.json").read_text())  # type: ignore
+for name in ["model1", "model2", "model3", "model4", "model5", "model6"]:
+    vars()[f"{name}_json"] = pytest.fixture(scope="session")(
+        lambda name=name: json.loads(Path(__file__).parent.joinpath(f"{name}.json").read_text())  # type: ignore
     )
 
 
-@pytest.fixture
-def simple_scad() -> bytes:
-    return Path(__file__).parent.joinpath("simple.sCAD").read_bytes()
-
-
-@pytest.fixture
-def text_scad() -> bytes:
-    return Path(__file__).parent.joinpath("text.sCAD").read_bytes()
-
-
-@pytest.fixture
-def model_scad() -> bytes:
-    return Path(__file__).parent.joinpath("model.sCAD").read_bytes()
+for name in ["simple", "text", "model"]:
+    vars()[f"{name}_scad"] = pytest.fixture(scope="session")(
+        lambda name=name: Path(__file__).parent.joinpath(f"{name}.sCAD").read_bytes()  # type: ignore
+    )
 
 
 @pytest.fixture
