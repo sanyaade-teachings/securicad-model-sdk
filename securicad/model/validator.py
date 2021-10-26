@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING
 from securicad.langspec import AttackStepType
 
 from .attacker import Attacker
-from .exception import (
+from .exceptions import (
     InvalidAssetException,
     InvalidAssociationException,
     InvalidAttackStepException,
@@ -51,7 +51,7 @@ class Validator:
             self.lang.assets[name].png_icon or self.lang.assets[name].svg_icon
         )
         if not in_model and not in_lang:
-            raise InvalidIconException(f"{name} doesn't exist")
+            raise InvalidIconException(name)
 
     def validate_object(self, obj: Object) -> None:
         if not self.lang:
@@ -60,7 +60,7 @@ class Validator:
             obj.asset_type not in self.lang.assets
             or self.lang.assets[obj.asset_type].is_abstract
         ):
-            raise InvalidAssetException(f"{obj.asset_type} doesn't exist")
+            raise InvalidAssetException(obj.asset_type)
 
     def validate_attack_step(self, attack_step: AttackStep) -> None:
         if not self.lang:
@@ -69,14 +69,14 @@ class Validator:
         if attack_step.name not in asset.attack_steps or asset.attack_steps[
             attack_step.name
         ].type not in {AttackStepType.AND, AttackStepType.OR}:
-            raise InvalidAttackStepException(f"{attack_step.name} doesn't exist")
+            raise InvalidAttackStepException(attack_step)
 
     def validate_field(self, obj: Object, field: str) -> None:
         if not self.lang:
             return
         asset = self.lang.assets[obj.asset_type]
         if field not in asset.fields:
-            raise InvalidFieldException(f"{field} doesn't exist")
+            raise InvalidFieldException(asset.name, field)
 
     def validate_defense(self, defense: Defense) -> None:
         if not self.lang:
@@ -86,16 +86,13 @@ class Validator:
             defense.name not in asset.attack_steps
             or asset.attack_steps[defense.name].type is not AttackStepType.DEFENSE
         ):
-            raise InvalidDefenseException(f"{defense.name} doesn't exist")
+            raise InvalidDefenseException(defense)
 
     def validate_association(self, association: Association) -> None:
         if not self.lang:
             return
-        source_object = self.model._objects[association.source_object_id]
-        target_object = self.model._objects[association.target_object_id]
-
-        source_asset = self.lang.assets[source_object.asset_type]
-        target_asset = self.lang.assets[target_object.asset_type]
+        source_asset = self.lang.assets[association.source_object.asset_type]
+        target_asset = self.lang.assets[association.target_object.asset_type]
 
         source_field = source_asset.fields[association.source_field]
         target_field = target_asset.fields[association.target_field]
@@ -104,7 +101,7 @@ class Validator:
             source_field == target_field
             or source_field.association != target_field.association
         ):
-            raise InvalidAssociationException(f"{association} doesn't exist")
+            raise InvalidAssociationException(association)
 
     def validate_attackers(self) -> list[str]:
         if not any(
@@ -112,7 +109,7 @@ class Validator:
             for attacker in self.model._attackers.values()
             for connections in attacker._first_steps.values()
         ):
-            return ["Model must have at least 1 connected attacker"]
+            return ["At least 1 attacker must be connected to the model."]
         return []
 
     def validate_max_multiplicity(self, obj: Object, field: str) -> None:
@@ -121,11 +118,8 @@ class Validator:
             return
 
         maximum = self.lang.assets[obj.asset_type].fields[field].multiplicity.max
-        target = "object" if maximum == 1 else "objects"
         if len(obj.field(field).objects()) >= maximum:
-            raise MultiplicityException(
-                f'field "{field}" must connect to at most {maximum} {target}'
-            )
+            raise MultiplicityException(obj, field, maximum)
 
     def validate_multiplicity(self, obj: Object) -> None:
         self.model._multiplicity_errors[obj].clear()
@@ -140,5 +134,5 @@ class Validator:
             if count < field.multiplicity.min:
                 target = "object" if field.multiplicity.min == 1 else "objects"
                 self.model._multiplicity_errors[obj].append(
-                    f'field "{name}" must connect to at least {field.multiplicity.min} {target}'
+                    f"Field '{name}' of {obj} must be connected to at least {field.multiplicity.min} {target}."
                 )

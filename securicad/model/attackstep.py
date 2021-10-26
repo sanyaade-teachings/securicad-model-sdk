@@ -35,6 +35,9 @@ class AttackStep(Base):
         self._name = name
         self._ttc = ttc if ttc is None else langspec.wrap_ttc_expression(ttc)
 
+    def __str__(self) -> str:
+        return f"<{self._object}->{self.name}>"
+
     @property
     def ttc(self) -> Optional[TtcExpression]:
         return self._ttc

@@ -15,12 +15,12 @@ from __future__ import annotations
 
 import pytest
 
-from securicad.model import (
-    InvalidAssociationException,
-    InvalidObjectException,
-    Model,
+from securicad.model import Model, Object
+from securicad.model.exceptions import (
+    DuplicateAssociationException,
+    MissingAssociationException,
+    MissingObjectException,
     MultiplicityException,
-    Object,
 )
 
 
@@ -33,7 +33,7 @@ def test_create(model: Model, objects: list[Object]):
 
 def test_duplicate(model: Model, objects: list[Object]):
     objects[0].field("field1").connect(objects[1].field("field2"))
-    with pytest.raises(InvalidAssociationException):
+    with pytest.raises(DuplicateAssociationException):
         objects[1].field("field2").connect(objects[0].field("field1"))
 
 
@@ -47,24 +47,24 @@ def test_delete(model: Model, objects: list[Object]):
 
 def test_delete_invalid(model: Model, objects: list[Object]):
     objects[0].delete()
-    with pytest.raises(InvalidObjectException):
+    with pytest.raises(MissingObjectException):
         objects[0].field("field1").disconnect(objects[1])
-    with pytest.raises(InvalidObjectException):
+    with pytest.raises(MissingObjectException):
         objects[1].field("field2").disconnect(objects[0])
 
 
 def test_double_delete(model: Model, objects: list[Object]):
     objects[0].field("field1").connect(objects[1].field("field2"))
     objects[0].field("field1").disconnect(objects[1])
-    with pytest.raises(InvalidAssociationException):
+    with pytest.raises(MissingAssociationException):
         objects[1].field("field2").disconnect(objects[0])
 
 
 def test_create_invalid(model: Model, objects: list[Object]):
     objects[0].delete()
-    with pytest.raises(InvalidObjectException):
+    with pytest.raises(MissingObjectException):
         objects[0].field("field1").connect(objects[1].field("field2"))
-    with pytest.raises(InvalidObjectException):
+    with pytest.raises(MissingObjectException):
         objects[1].field("field2").connect(objects[0].field("field1"))
 
 

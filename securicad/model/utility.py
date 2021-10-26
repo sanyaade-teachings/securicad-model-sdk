@@ -22,6 +22,12 @@ if TYPE_CHECKING:  # pragma: no cover
 T = TypeVar("T")
 
 
+def named_id_type(type_: type[T], subject: int | T) -> str:
+    if isinstance(subject, int):
+        return f"{type_.__name__} id {subject}"
+    return str(subject)
+
+
 def get_nested_attribute(obj: Any, attribute: str) -> Any:
     for attr in attribute.split("."):
         obj = getattr(obj, attr)

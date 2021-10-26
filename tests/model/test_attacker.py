@@ -15,12 +15,12 @@ from __future__ import annotations
 
 import pytest
 
-from securicad.model import (
-    Attacker,
-    InvalidAttackStepException,
-    InvalidObjectException,
-    Model,
-    Object,
+from securicad.model import Attacker, Model, Object
+from securicad.model.exceptions import (
+    DuplicateAttackStepException,
+    DuplicateObjectException,
+    MissingAttackStepException,
+    MissingObjectException,
 )
 
 
@@ -29,13 +29,13 @@ def test_create(model: Model, attacker: Attacker):
 
 
 def test_duplicate_id(model: Model, attacker: Attacker):
-    with pytest.raises(InvalidObjectException):
+    with pytest.raises(DuplicateObjectException):
         model.create_attacker(id=attacker.id)
 
 
 def test_delete(model: Model, attacker: Attacker):
     attacker.delete()
-    with pytest.raises(InvalidObjectException):
+    with pytest.raises(MissingObjectException):
         model.object(attacker.id)
 
 
@@ -46,19 +46,19 @@ def test_connect(model: Model, attacker: Attacker, objects: list[Object]):
 
 def test_connect_duplicate(attacker: Attacker, objects: list[Object]):
     attacker.connect(objects[0].attack_step("access"))
-    with pytest.raises(InvalidAttackStepException):
+    with pytest.raises(DuplicateAttackStepException):
         attacker.connect(objects[0].attack_step("access"))
 
 
 def test_connect_invalid_object(attacker: Attacker, objects: list[Object]):
     objects[0].delete()
-    with pytest.raises(InvalidObjectException):
+    with pytest.raises(MissingObjectException):
         attacker.connect(objects[0].attack_step("access"))
 
 
 def test_connect_invalid_attacker(attacker: Attacker, objects: list[Object]):
     attacker.delete()
-    with pytest.raises(InvalidObjectException):
+    with pytest.raises(MissingObjectException):
         attacker.connect(objects[0].attack_step("access"))
 
 
@@ -78,7 +78,7 @@ def test_disconnect(model: Model, attacker: Attacker, objects: list[Object]):
 def test_double_disconnect(attacker: Attacker, objects: list[Object]):
     attacker.connect(objects[0].attack_step("access"))
     attacker.disconnect(objects[0].attack_step("access"))
-    with pytest.raises(InvalidAttackStepException):
+    with pytest.raises(MissingAttackStepException):
         attacker.disconnect(objects[0].attack_step("access"))
 
 

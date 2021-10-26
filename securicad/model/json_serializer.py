@@ -185,9 +185,9 @@ def serialize_model(model: Model, *, sort: bool = False) -> dict[str, Any]:
             [
                 {
                     "meta": association.meta,
-                    "source_object_id": association.source_object_id,
+                    "source_object_id": association.source_object.id,
                     "source_field": association.source_field,
-                    "target_object_id": association.target_object_id,
+                    "target_object_id": association.target_object.id,
                     "target_field": association.target_field,
                 }
                 for association in model._associations
@@ -226,13 +226,14 @@ def deserialize_model(
 
     for o_data in data["objects"]:
         if o_data["asset_type"] == "Attacker":
-            attacker = model.create_attacker(o_data["name"], id=o_data["id"])
-            attacker.meta = o_data["meta"]
+            model.create_attacker(o_data["name"], id=o_data["id"], meta=o_data["meta"])
         else:
             obj = model.create_object(
-                o_data["asset_type"], o_data["name"], id=o_data["id"]
+                o_data["asset_type"],
+                o_data["name"],
+                id=o_data["id"],
+                meta=o_data["meta"],
             )
-            obj.meta = o_data["meta"]
             for a_data in o_data["attack_steps"]:
                 attack_step = obj.attack_step(a_data["name"])
                 attack_step.meta = a_data["meta"]

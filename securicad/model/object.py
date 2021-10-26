@@ -46,9 +46,7 @@ class Object(Base):
         self._attackers: set[Attacker] = set()
 
     def __str__(self) -> str:
-        return (
-            f'<{self.__class__.__name__} id={self.id},asset_type="{self.asset_type}">'
-        )
+        return f"<{self.__class__.__name__} id={self.id}, asset='{self.asset_type}', name='{self.name}'>"
 
     @property
     def asset_type(self) -> str:

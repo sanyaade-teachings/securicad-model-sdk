@@ -15,7 +15,12 @@
 import pytest
 
 from securicad.langspec import Lang
-from securicad.model import Icon, InvalidIconException, Model, View
+from securicad.model import Icon, Model, View
+from securicad.model.exceptions import (
+    DuplicateIconException,
+    InvalidIconException,
+    MissingIconException,
+)
 
 
 @pytest.mark.vehicle_lang()
@@ -31,7 +36,7 @@ def test_create_any(vehicle_lang: Lang):
 
 
 def test_get_invalid(model: Model):
-    with pytest.raises(InvalidIconException):
+    with pytest.raises(MissingIconException):
         model.icon("?")
 
 
@@ -41,16 +46,16 @@ def test_create(model: Model, icon: Icon):
 
 def test_delete(model: Model, icon: Icon):
     model.delete_icon(icon.name)
-    with pytest.raises(InvalidIconException):
+    with pytest.raises(MissingIconException):
         model.icon(icon.name)
 
 
 def test_duplicate(model: Model, icon: Icon):
-    with pytest.raises(InvalidIconException):
+    with pytest.raises(DuplicateIconException):
         model.create_icon(icon.name, "", b"", "")
 
 
 def test_double_delete(model: Model, icon: Icon):
     model.delete_icon(icon.name)
-    with pytest.raises(InvalidIconException):
+    with pytest.raises(MissingIconException):
         model.delete_icon(icon.name)

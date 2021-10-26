@@ -15,11 +15,12 @@ from __future__ import annotations
 
 import pytest
 
-from securicad.model import Attacker, InvalidObjectException, Model, Object, View
+from securicad.model import Attacker, Model, Object, View
+from securicad.model.exceptions import DuplicateObjectException, MissingObjectException
 
 
 def test_get_invalid(model: Model):
-    with pytest.raises(InvalidObjectException):
+    with pytest.raises(MissingObjectException):
         model.object(1)
 
 
@@ -45,18 +46,18 @@ def test_filter(model: Model):
 
 def test_delete(model: Model, objects: list[Object]):
     objects[0].delete()
-    with pytest.raises(InvalidObjectException):
+    with pytest.raises(MissingObjectException):
         model.object(objects[0].id)
 
 
 def test_duplicate_id(model: Model, objects: list[Object]):
-    with pytest.raises(InvalidObjectException):
+    with pytest.raises(DuplicateObjectException):
         model.create_object("ECU", id=objects[0].id)
 
 
 def test_double_delete(objects: list[Object]):
     objects[0].delete()
-    with pytest.raises(InvalidObjectException):
+    with pytest.raises(MissingObjectException):
         objects[0].delete()
 
 

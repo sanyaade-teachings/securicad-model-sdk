@@ -31,6 +31,9 @@ class Defense(Base):
         self._name = name
         self.probability = probability
 
+    def __str__(self) -> str:
+        return f"<{self._object}->{self.name}>"
+
     @property
     def is_default(self) -> bool:
         return self.probability is None and not self.meta

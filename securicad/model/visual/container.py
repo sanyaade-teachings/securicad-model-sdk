@@ -18,7 +18,12 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from .. import utility
 from ..base import Base
-from .exception import InvalidGroupException, InvalidViewObjectException
+from .exceptions import (
+    DuplicateGroupException,
+    DuplicateViewObjectException,
+    MissingGroupException,
+    MissingViewObjectException,
+)
 from .viewobject import ViewObject
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -35,6 +40,9 @@ class Container(Base):
         self.name = name
         self._id = id
 
+    def __str__(self) -> str:
+        return f"<{self.__class__.__name__} id={self.id}, name='{self.name}'>"
+
     @property
     def id(self) -> int:
         return self._id
@@ -50,9 +58,9 @@ class Container(Base):
         for group in self._groups.values():
             try:
                 return group.object(obj)
-            except InvalidViewObjectException:
+            except MissingViewObjectException:
                 pass
-        raise InvalidViewObjectException(f"{obj} doesn't exist")
+        raise MissingViewObjectException(self._view, obj)
 
     def objects(self, *, name: Optional[str] = None) -> list[ViewObject]:
         objects = utility.iterable_filter(
@@ -68,9 +76,9 @@ class Container(Base):
         for group in self._groups.values():
             try:
                 return group.group(id)
-            except InvalidGroupException:
+            except MissingGroupException:
                 pass
-        raise InvalidGroupException(f"{id} doesn't exist")
+        raise MissingGroupException(self._view, id)
 
     def groups(self, *, name: Optional[str] = None) -> list[Group]:
         groups = utility.iterable_filter(self._groups.values(), name=name)
@@ -104,7 +112,7 @@ class Container(Base):
 
     def add_object(self, obj: Object, x: float = 0, y: float = 0) -> ViewObject:
         if self._view.has_object(obj):
-            raise InvalidViewObjectException(f"{obj.id} already exists")
+            raise DuplicateViewObjectException(self._view, obj)
         return self._add_object(ViewObject({}, x, y, self, obj.id))
 
     def create_group(
@@ -120,7 +128,7 @@ class Container(Base):
 
         id = self._view._model._get_id(id)
         if id in self._groups:
-            raise InvalidGroupException(f"{id} already exists")
+            raise DuplicateGroupException(self._view, self.group(id))
         group = Group({}, id, x, y, self, name, icon)
         self._view._model._validator.validate_icon(icon)
         return self._add_group(group)

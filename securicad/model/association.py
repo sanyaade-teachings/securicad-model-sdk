@@ -26,19 +26,19 @@ class Association(Base):
     def __init__(
         self,
         meta: dict[str, Any],
-        source_object_id: int,
+        source_object: Object,
         source_field: str,
-        target_object_id: int,
+        target_object: Object,
         target_field: str,
     ) -> None:
         super().__init__(meta)
-        self.source_object_id = source_object_id
+        self.source_object = source_object
         self.source_field = source_field
-        self.target_object_id = target_object_id
+        self.target_object = target_object
         self.target_field = target_field
 
     def __str__(self) -> str:
-        return f"<<id={self.source_object_id}>.{self.source_field} <-> <id={self.target_object_id}>.{self.target_field}>"
+        return f"<{self.source_object}.{self.source_field} <-> {self.target_object}.{self.target_field}>"
 
 
 class Field:

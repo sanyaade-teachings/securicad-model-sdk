@@ -55,11 +55,10 @@ def serialize_attack_step(attack_step: AttackStep):
 def serialize_link(model: Model, association: Association) -> str | None:
     if not model._lang:
         return None
-    source_object = model.object(association.source_object_id)
-    if source_object.asset_type == "Attacker":
+    if association.source_object.asset_type == "Attacker":
         return None
     return (
-        model._lang.assets[source_object.asset_type]
+        model._lang.assets[association.source_object.asset_type]
         .fields[association.source_field]
         .association.name
     )
@@ -112,8 +111,8 @@ def serialize_model(model: Model, *, sort: bool = False) -> dict[str, Any]:
         "associations": sort_dict_list(
             [
                 {  # in ES the id1.type2 is connected to id2.type1
-                    "id1": str(association.source_object_id),
-                    "id2": str(association.target_object_id),
+                    "id1": str(association.source_object.id),
+                    "id2": str(association.target_object.id),
                     "link": serialize_link(model, association),
                     "type2": association.source_field,
                     "type1": association.target_field,
@@ -177,44 +176,49 @@ def deserialize_model(
     for object_id, object_data in data["objects"].items():
         id_exported_id[object_id] = object_data["eid"]
         if object_data["metaconcept"] == "Attacker":
-            obj = model.create_attacker(object_data["name"], id=object_data["eid"])
+            obj = model.create_attacker(
+                object_data["name"],
+                id=object_data["eid"],
+                meta={"tags": object_data["tags"]},
+            )
         else:
             obj = model.create_object(
-                object_data["metaconcept"], object_data["name"], id=object_data["eid"]
+                object_data["metaconcept"],
+                object_data["name"],
+                id=object_data["eid"],
+                meta={"tags": object_data["tags"]},
             )
 
-        obj.meta["tags"] = object_data["tags"]
+            attack_lookup = utility.attack_step_lookup(
+                object_data["metaconcept"],
+                lang,
+                lowercase_attack_step,
+                (AttackStepType.AND, AttackStepType.OR),
+            )
+            defense_lookup = utility.attack_step_lookup(
+                object_data["metaconcept"],
+                lang,
+                lowercase_attack_step,
+                (AttackStepType.DEFENSE,),
+            )
 
-        attack_lookup = utility.attack_step_lookup(
-            object_data["metaconcept"],
-            lang,
-            lowercase_attack_step,
-            (AttackStepType.AND, AttackStepType.OR),
-        )
-        defense_lookup = utility.attack_step_lookup(
-            object_data["metaconcept"],
-            lang,
-            lowercase_attack_step,
-            (AttackStepType.DEFENSE,),
-        )
+            for attack_step_data in object_data["attacksteps"]:
+                attack_step = obj.attack_step(attack_lookup(attack_step_data["name"]))
+                attack_step.meta = {
+                    "costUpperLimit": attack_step_data["uppercost"],
+                    "costLowerLimit": attack_step_data["lowercost"],
+                    "consequence": attack_step_data["consequence"],
+                }
+                if attack_step_data["distribution"] is not None:
+                    name, *parameters = attack_step_data["distribution"].split(",")
+                    attack_step.ttc = TtcFunction(
+                        TtcDistribution(name),
+                        [float(parameter) for parameter in parameters],
+                    )
 
-        for attack_step_data in object_data["attacksteps"]:
-            attack_step = obj.attack_step(attack_lookup(attack_step_data["name"]))
-            attack_step.meta = {
-                "costUpperLimit": attack_step_data["uppercost"],
-                "costLowerLimit": attack_step_data["lowercost"],
-                "consequence": attack_step_data["consequence"],
-            }
-            if attack_step_data["distribution"] is not None:
-                name, *parameters = attack_step_data["distribution"].split(",")
-                attack_step.ttc = TtcFunction(
-                    TtcDistribution(name),
-                    [float(parameter) for parameter in parameters],
-                )
-
-        for defense_data in object_data["defenses"]:
-            defense = obj.defense(defense_lookup(defense_data["name"]))
-            defense.probability = defense_data["probability"]
+            for defense_data in object_data["defenses"]:
+                defense = obj.defense(defense_lookup(defense_data["name"]))
+                defense.probability = defense_data["probability"]
 
     for association_data in data["associations"]:
         # in ES the id1.type2 is connected to id2.type1

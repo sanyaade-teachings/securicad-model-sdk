@@ -219,6 +219,9 @@ def deserialize_model(
             assert len(xmi_distribution.parameters) == 1  # only probability, or fixed
             obj.meta["existence"] = xmi_distribution.parameters[0].value
 
+        if xmi_object.metaConcept == "Attacker":
+            continue
+
         attack_lookup = utility.attack_step_lookup(
             xmi_object.metaConcept,
             lang,
@@ -478,9 +481,9 @@ def serialize_model(model: Model, file: str | PathLike[Any] | IO[bytes]) -> None
     for association in model._associations:
         eom.associations.append(  # type: ignore
             ObjectModelPackage.XMIAssociation(
-                sourceObject=str(association.source_object_id),
+                sourceObject=str(association.source_object.id),
                 sourceProperty=association.source_field,
-                targetObject=str(association.target_object_id),
+                targetObject=str(association.target_object.id),
                 targetProperty=association.target_field,
             )
         )

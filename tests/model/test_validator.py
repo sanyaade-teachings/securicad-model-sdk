@@ -14,16 +14,15 @@
 
 import pytest
 
-from securicad.model import (
+from securicad.model import Model, View
+from securicad.model.exceptions import (
     InvalidAssetException,
     InvalidAssociationException,
     InvalidAttackStepException,
     InvalidDefenseException,
     InvalidFieldException,
     InvalidIconException,
-    Model,
     MultiplicityException,
-    View,
 )
 
 

@@ -15,7 +15,8 @@ from __future__ import annotations
 
 import pytest
 
-from securicad.model import InvalidViewException, Model, Object, View
+from securicad.model import Model, Object, View
+from securicad.model.exceptions import DuplicateViewException, MissingViewException
 
 
 def test_create(model: Model, view: View):
@@ -24,23 +25,23 @@ def test_create(model: Model, view: View):
 
 def test_double_delete(view: View):
     view.delete()
-    with pytest.raises(InvalidViewException):
+    with pytest.raises(MissingViewException):
         view.delete()
 
 
 def test_invalid_get(model: Model):
-    with pytest.raises(InvalidViewException):
+    with pytest.raises(MissingViewException):
         model.view(1)
 
 
 def test_duplicate(view: View, model: Model):
-    with pytest.raises(InvalidViewException):
+    with pytest.raises(DuplicateViewException):
         model.create_view("default", id=view.id)
 
 
 def test_delete(view: View, model: Model):
     view.delete()
-    with pytest.raises(InvalidViewException):
+    with pytest.raises(MissingViewException):
         model.view(view.id)
 
 

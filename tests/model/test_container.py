@@ -18,13 +18,12 @@ import typing
 
 import pytest
 
-from securicad.model import (
-    Group,
-    InvalidGroupException,
-    InvalidViewObjectException,
-    Model,
-    Object,
-    View,
+from securicad.model import Group, Model, Object, View
+from securicad.model.exceptions import (
+    DuplicateGroupException,
+    DuplicateViewObjectException,
+    MissingGroupException,
+    MissingViewObjectException,
 )
 
 
@@ -35,7 +34,7 @@ def test_create_nested_group(group: Group):
 
 def test_create_duplicated_nested_group(group: Group):
     group2 = group.create_group("group", "icon")
-    with pytest.raises(InvalidGroupException):
+    with pytest.raises(DuplicateGroupException):
         group2 = group.create_group("group", "icon", id=group2.id)
 
 
@@ -69,7 +68,7 @@ def test_create_group(view: View, group: Group):
 
 
 def test_duplicate_group(group: Group, view: View):
-    with pytest.raises(InvalidGroupException):
+    with pytest.raises(DuplicateGroupException):
         view.create_group("group", "icon", id=group.id)
 
 
@@ -80,30 +79,30 @@ def test_add_object(view: View, objects: list[Object]):
 
 def test_add_duplicate(view: View, objects: list[Object]):
     view.add_object(objects[0])
-    with pytest.raises(InvalidViewObjectException):
+    with pytest.raises(DuplicateViewObjectException):
         view.add_object(objects[0])
 
 
 def test_delete_object(view: View, objects: list[Object]):
     obj = view.add_object(objects[0])
     obj.delete()
-    with pytest.raises(InvalidViewObjectException):
+    with pytest.raises(MissingViewObjectException):
         view.object(objects[0])
 
 
 def test_delete_group(view: View, group: Group):
     group.delete()
-    with pytest.raises(InvalidGroupException):
+    with pytest.raises(MissingGroupException):
         view.group(group.id)
 
 
 def test_get_invalid_object(view: View, objects: list[Object]):
-    with pytest.raises(InvalidViewObjectException):
+    with pytest.raises(MissingViewObjectException):
         view.object(objects[0])
 
 
 def test_get_invalid_group(view: View):
-    with pytest.raises(InvalidGroupException):
+    with pytest.raises(MissingGroupException):
         view.group(0)
 
 

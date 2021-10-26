@@ -21,28 +21,10 @@ from .association import Association
 from .attacker import Attacker
 from .attackstep import AttackStep
 from .defense import Defense
-from .exception import (
-    InvalidAssetException,
-    InvalidAssociationException,
-    InvalidAttackStepException,
-    InvalidDefenseException,
-    InvalidFieldException,
-    InvalidIconException,
-    InvalidObjectException,
-    LangException,
-    ModelException,
-    MultiplicityException,
-)
 from .icon import Icon
 from .model import Model
 from .object import Object
 from .visual.container import Container
-from .visual.exception import (
-    InvalidGroupException,
-    InvalidViewException,
-    InvalidViewObjectException,
-    VisualException,
-)
 from .visual.group import Group
 from .visual.view import View
 from .visual.viewitem import ViewItem

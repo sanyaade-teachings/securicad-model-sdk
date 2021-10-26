@@ -17,7 +17,7 @@ from __future__ import annotations
 import collections
 from typing import TYPE_CHECKING, Any, DefaultDict
 
-from .exception import InvalidAttackStepException
+from .exceptions import MissingAttackStepException
 from .object import Object
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -34,13 +34,13 @@ class Attacker(Object):
         ] = collections.defaultdict(dict)
 
     def connect(self, attack_step: AttackStep) -> None:
-        self._model._check_connection(self, attack_step._object, attack_step.name)
+        self._model._check_connection(self, attack_step._object, attack_step)
         self._model._validator.validate_attack_step(attack_step)
         self._model._add_connection(self, attack_step._object, attack_step.name)
 
     def disconnect(self, attack_step: AttackStep) -> None:
         if not attack_step.name in self._first_steps[attack_step._object]:
-            raise InvalidAttackStepException(f"{attack_step} is not connected")
+            raise MissingAttackStepException(self, attack_step)
         association = self._first_steps[attack_step._object][attack_step.name]
         self._model._associations.remove(association)
         del self._first_steps[attack_step._object][attack_step.name]
