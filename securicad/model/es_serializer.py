@@ -140,7 +140,7 @@ def serialize_model(model: Model, *, sort: bool = False) -> dict[str, Any]:
                 "name": view.name,
                 "objects": serialize_nodes(view._objects.values()),
                 "groups": serialize_nodes(view._groups.values()),
-                "load_on_start": view.meta.get("loadOnStart", False),
+                "load_on_start": view.meta.get("loadOnStart", True),
             }
             for view in model._views.values()
         ],
@@ -225,11 +225,11 @@ def deserialize_model(
         source_object = model.object(id_exported_id[association_data["id1"]])
         target_object = model.object(id_exported_id[association_data["id2"]])
         if isinstance(source_object, Attacker):
-            attack_step = association_data["type1"].split(".")[0]
-            source_object.connect(target_object.attack_step(attack_step))
+            step = association_data["type1"].split(".")[0]
+            source_object.connect(target_object.attack_step(step))
         elif isinstance(target_object, Attacker):
-            attack_step = association_data["type2"].split(".")[0]
-            target_object.connect(source_object.attack_step(attack_step))
+            step = association_data["type2"].split(".")[0]
+            target_object.connect(source_object.attack_step(step))
         else:
             source_object.field(association_data["type2"]).connect(
                 target_object.field(association_data["type1"])
@@ -262,7 +262,7 @@ def deserialize_model(
 
     for view_data in data["views"]:
         view = model.create_view(view_data["name"])
-        view.meta = {"loadOnStart": view_data["load_on_start"]}
+        view.meta = {"loadOnStart": view_data.get("load_on_start", True)}
         for object_id, node_data in view_data["objects"].items():
             view.add_object(
                 model.object(id_exported_id[object_id]),

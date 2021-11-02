@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
-from typing import TYPE_CHECKING, Any, Iterable, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, TypeVar
 
 if TYPE_CHECKING:  # pragma: no cover
     from securicad.langspec import AttackStepType, Lang
@@ -55,7 +55,7 @@ def attack_step_lookup(
     lang: Optional[Lang],
     lowercase_attack_step: bool,
     types_: tuple[AttackStepType],
-):
+) -> Callable[[str], str]:
     if lang and asset_type != "Attacker":
         attack_steps = {
             name.lower(): name

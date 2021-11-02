@@ -42,13 +42,13 @@ class AttackStep(Base):
     def ttc(self) -> Optional[TtcExpression]:
         return self._ttc
 
-    @property
-    def is_default(self) -> bool:
-        return self._ttc is None and not self.meta
-
     @ttc.setter
     def ttc(self, value: Optional[TtcValue]) -> None:  # type: ignore
         self._ttc = value if value is None else langspec.wrap_ttc_expression(value)
+
+    @property
+    def is_default(self) -> bool:
+        return self._ttc is None and not self.meta
 
     @property
     def name(self) -> str:

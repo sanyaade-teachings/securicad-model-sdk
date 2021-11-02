@@ -262,11 +262,11 @@ def deserialize_model(
         source_object = model.object(a_data["source_object_id"])
         target_object = model.object(a_data["target_object_id"])
         if isinstance(source_object, Attacker):
-            attack_step = a_data["target_field"].split(".")[0]
-            source_object.connect(target_object.attack_step(attack_step))
+            step = a_data["target_field"].split(".")[0]
+            source_object.connect(target_object.attack_step(step))
         elif isinstance(target_object, Attacker):
-            attack_step = a_data["source_field"].split(".")[0]
-            target_object.connect(source_object.attack_step(attack_step))
+            step = a_data["source_field"].split(".")[0]
+            target_object.connect(source_object.attack_step(step))
         else:
             source_object.field(a_data["source_field"]).connect(
                 target_object.field(a_data["target_field"])

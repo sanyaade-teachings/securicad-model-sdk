@@ -10,7 +10,7 @@
         "existence": 1
       },
       "id": 1,
-      "name": "",
+      "name": "ECU",
       "asset_type": "ECU",
       "attack_steps": [
         {
@@ -28,7 +28,7 @@
         "existence": 1
       },
       "id": 2,
-      "name": "",
+      "name": "Attacker",
       "asset_type": "Attacker",
       "attack_steps": [],
       "defenses": []

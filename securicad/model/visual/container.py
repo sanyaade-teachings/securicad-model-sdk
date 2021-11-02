@@ -21,6 +21,7 @@ from ..base import Base
 from .exceptions import (
     DuplicateGroupException,
     DuplicateViewObjectException,
+    InvalidMoveException,
     MissingGroupException,
     MissingViewObjectException,
 )
@@ -30,6 +31,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from ..object import Object
     from .group import Group
     from .view import View
+    from .viewitem import ViewItem
 
 
 class Container(Base):
@@ -91,19 +93,19 @@ class Container(Base):
             group.has_object(obj) for group in self._groups.values()
         )
 
-    def delete_object(self, obj: Object) -> bool:
+    def _delete_object(self, obj: Object) -> bool:
         if obj.id in self._objects:
             del self._objects[obj.id]
             return True
         else:
-            return any(group.delete_object(obj) for group in self._groups.values())
+            return any(group._delete_object(obj) for group in self._groups.values())
 
-    def delete_group(self, id: int) -> bool:
+    def _delete_group(self, id: int) -> bool:
         if id in self._groups:
             del self._groups[id]
             return True
         else:
-            return any(group.delete_group(id) for group in self._groups.values())
+            return any(group._delete_group(id) for group in self._groups.values())
 
     def _add_object(self, obj: ViewObject) -> ViewObject:
         self._view._model.object(obj.id)
@@ -139,3 +141,19 @@ class Container(Base):
 
     def delete(self) -> None:  # pragma: no cover
         raise NotImplementedError()
+
+    # called to check whether the current container can accept a thing
+    def _validate_can_move_here(self, obj: ViewItem) -> None:
+        from .group import Group
+        from .viewobject import ViewObject
+
+        if obj._view == self._view:
+            return
+        if isinstance(obj, ViewObject):
+            if self._view.has_object(self._view._model.object(obj.id)):
+                raise InvalidMoveException(obj, self)
+        elif isinstance(obj, Group):
+            for viewobject in obj._objects.values():
+                self._validate_can_move_here(viewobject)
+            for group in obj._groups.values():
+                self._validate_can_move_here(group)

@@ -74,9 +74,14 @@ def test_create_model1(model: Model, model1_json: dict[str, Any]):
     assert json_serializer.serialize_model(model, sort=True) == model1_json
 
 
+def test_validation_errors_model1(model1_json: dict[str, Any], vehicle_lang: Lang):
+    model = json_serializer.deserialize_model(model1_json, lang=vehicle_lang)
+    assert model.validation_errors == []
+
+
 def test_validate_model1(model1_json: dict[str, Any], vehicle_lang: Lang):
     model = json_serializer.deserialize_model(model1_json, lang=vehicle_lang)
-    assert not model.validate()
+    model.validate()
 
 
 def test_serialize_loop(model1_json: dict[str, Any], vehicle_lang: Lang):

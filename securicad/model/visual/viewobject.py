@@ -16,8 +16,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from ..base import Base
-from ..object import Object
+from securicad.model.base import Base
+from securicad.model.object import Object
+
 from .viewitem import ViewItem
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -39,9 +40,10 @@ class ViewObject(ViewItem, Base):
     # inherited viewitem
 
     def delete(self) -> None:
-        self._parent.delete_object(self._object)
+        self._parent._delete_object(self._object)
 
     def move(self, target: Container) -> None:
+        target._validate_can_move_here(obj=self)
         del self._parent._objects[self.id]
         target._objects[self.id] = self
         self._parent = target

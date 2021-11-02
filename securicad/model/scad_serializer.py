@@ -192,7 +192,6 @@ def deserialize_model(
         except StopIteration:
             if lang and lang.defines["id"] != SECURILANG:  # pragma: no cover
                 raise RuntimeError("MAL languages must have meta.json defined")
-            print(eom.xLang)
             model = Model(
                 lang_id=SECURILANG,
                 lang_version=eom.xLang,
@@ -271,11 +270,11 @@ def deserialize_model(
         source_object = model.object(id_exported_id[xmi_association.sourceObject])
         target_object = model.object(id_exported_id[xmi_association.targetObject])
         if isinstance(source_object, Attacker):
-            attack_step = xmi_association.targetProperty.split(".")[0]
-            source_object.connect(target_object.attack_step(attack_step))
+            step = xmi_association.targetProperty.split(".")[0]
+            source_object.connect(target_object.attack_step(step))
         elif isinstance(target_object, Attacker):
-            attack_step = xmi_association.sourceProperty.split(".")[0]
-            target_object.connect(source_object.attack_step(attack_step))
+            step = xmi_association.sourceProperty.split(".")[0]
+            target_object.connect(source_object.attack_step(step))
         else:
             source_object.field(xmi_association.sourceProperty).connect(
                 target_object.field(xmi_association.targetProperty)
@@ -380,7 +379,7 @@ def serialize_object(obj: Object) -> ObjectModelPackage.XMIObject:
         id=str(obj.id),
         exportedId=obj.id,
         metaConcept=obj.asset_type,
-        name=obj.name,
+        name=obj.name if obj.name else obj.asset_type,
         attributesJsonString=json.dumps(obj.meta.get("tags", {})),
         capex=obj.meta.get("capex", None),
         opex=obj.meta.get("opex", None),
@@ -491,7 +490,7 @@ def serialize_model(model: Model, file: str | PathLike[Any] | IO[bytes]) -> None
     canvas = ModelViewsPackage.ModelViews()
     for view in model._views.values():
         xmi_view = ModelViewsPackage.View(
-            name=view.name, loadOnStart=view.meta.get("loadOnStart", None)
+            name=view.name, loadOnStart=view.meta.get("loadOnStart", True)
         )
         canvas.view.append(xmi_view)  # type: ignore
         for obj in view._objects.values():

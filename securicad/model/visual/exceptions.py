@@ -15,8 +15,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from securicad.model import Group, Object, View
+if TYPE_CHECKING:  # pragma: no cover
+    from securicad.model import Group, Object, View, ViewItem
+
+    from .container import Container
 
 
 class VisualException(Exception):
@@ -61,3 +63,13 @@ class MissingGroupException(VisualException):
         self.view = view
         self.group_id = group_id
         super().__init__(f"Group id {group_id} isn't in {view}.")
+
+
+class InvalidMoveException(VisualException):
+    def __init__(self, item: ViewItem, target: Container) -> None:
+        self.view = item._view
+        self.item = item
+        self.target = target
+        super().__init__(
+            f"{self.item} in {self.view} can't be moved to {self.target} because it's already there."
+        )

@@ -14,17 +14,27 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from .base import Base
+
+if TYPE_CHECKING:  # pragma: no cover
+    from .model import Model
 
 
 class Icon(Base):
     def __init__(
-        self, meta: dict[str, Any], name: str, format: str, data: bytes, license: str
+        self,
+        meta: dict[str, Any],
+        model: Model,
+        name: str,
+        format: str,
+        data: bytes,
+        license: str,
     ) -> None:
         super().__init__(meta)
         self._name = name
+        self._model = model
         self.data = data
         self.format = format
         self.license = license
@@ -32,3 +42,6 @@ class Icon(Base):
     @property
     def name(self) -> str:
         return self._name
+
+    def delete(self) -> None:
+        self._model._delete_icon(self._name)

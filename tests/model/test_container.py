@@ -25,6 +25,7 @@ from securicad.model.exceptions import (
     MissingGroupException,
     MissingViewObjectException,
 )
+from securicad.model.visual.exceptions import InvalidMoveException
 
 
 def test_create_nested_group(group: Group):
@@ -49,6 +50,16 @@ def test_move_object(view: View, objects: list[Object], group: Group):
     assert [obj] == view.objects()
 
 
+def test_move_object_fail_is_in_view(model: Model, objects: list[Object]):
+    v1 = model.create_view("v1")
+    v2 = model.create_view("v2")
+    obj = objects[0]
+    ov1 = v1.add_object(obj)
+    ov2 = v2.add_object(obj)
+    with pytest.raises(InvalidMoveException):
+        ov1.move(v2)
+
+
 def test_move_group(view: View, group: Group):
     group2 = group.create_group("group", "icon")
     group2.move(view)
@@ -56,10 +67,64 @@ def test_move_group(view: View, group: Group):
     assert len(view.groups()) == 2
 
 
+def test_move_obj_in_group_fail_obj_is_in_view(
+    model: Model, objects: list[Object], group: Group
+):
+    obj = objects[0]
+    v1 = model.create_view("v1")
+    v1g = v1.create_group("v1g", "icon")
+    v1go = v1g.add_object(obj)
+    v2 = model.create_view("v2")
+    v2.add_object(obj)
+    with pytest.raises(InvalidMoveException):
+        v1go.move(v2)
+
+
+def test_move_obj_in_group_fail_group_is_in_view(
+    model: Model, objects: list[Object], group: Group
+):
+    obj = objects[0]
+    v1 = model.create_view("v1")
+    v1g = v1.create_group("v1g", "icon")
+    v1go = v1g.add_object(obj)
+    v2 = model.create_view("v2")
+    v2g = v2.create_group("v2g", "icon")
+    v2g.add_object(obj)
+    with pytest.raises(InvalidMoveException):
+        v1go.move(v2)
+
+
+def test_move_group_fail_obj_is_in_view(
+    model: Model, objects: list[Object], group: Group
+):
+    obj = objects[0]
+    v1 = model.create_view("v1")
+    v1g = v1.create_group("v1g", "icon")
+    v1go = v1g.add_object(obj)
+    v2 = model.create_view("v2")
+    v2.add_object(obj)
+    with pytest.raises(InvalidMoveException):
+        v1g.move(v2)
+
+
+def test_move_group_fail_group_is_in_view(
+    model: Model, objects: list[Object], group: Group
+):
+    obj = objects[0]
+    v1 = model.create_view("v1")
+    v1g = v1.create_group("v1g", "icon")
+    v1go = v1g.add_object(obj)
+    v2 = model.create_view("v2")
+    v2g = v2.create_group("v2g", "icon")
+    v2g.add_object(obj)
+    with pytest.raises(InvalidMoveException):
+        v1g.move(v2)
+
+
 def test_delete_nested(view: View, objects: list[Object]):
     group = view.create_group("group", "icon")
     group.add_object(objects[0])
-    view.delete_object(objects[0])
+    view.object(objects[0]).delete()
     assert not group.objects()
 
 

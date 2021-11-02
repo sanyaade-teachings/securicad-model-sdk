@@ -45,7 +45,7 @@ def test_create(model: Model, icon: Icon):
 
 
 def test_delete(model: Model, icon: Icon):
-    model.delete_icon(icon.name)
+    icon.delete()
     with pytest.raises(MissingIconException):
         model.icon(icon.name)
 
@@ -56,6 +56,6 @@ def test_duplicate(model: Model, icon: Icon):
 
 
 def test_double_delete(model: Model, icon: Icon):
-    model.delete_icon(icon.name)
+    icon.delete()
     with pytest.raises(MissingIconException):
-        model.delete_icon(icon.name)
+        icon.delete()

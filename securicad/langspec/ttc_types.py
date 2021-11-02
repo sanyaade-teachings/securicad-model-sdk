@@ -32,7 +32,7 @@ def wrap_ttc_expression(other: TtcValue) -> TtcExpression:
 class TtcExpression(ABC):
     @staticmethod
     @abstractmethod
-    def _abstract():
+    def _abstract() -> None:
         pass
 
     def __add__(self, other: TtcValue) -> TtcAddition:
@@ -78,35 +78,35 @@ class TtcBinaryOperation(TtcExpression):
 @dataclass(frozen=True)
 class TtcAddition(TtcBinaryOperation):
     @staticmethod
-    def _abstract():
+    def _abstract() -> None:
         pass
 
 
 @dataclass(frozen=True)
 class TtcSubtraction(TtcBinaryOperation):
     @staticmethod
-    def _abstract():
+    def _abstract() -> None:
         pass
 
 
 @dataclass(frozen=True)
 class TtcMultiplication(TtcBinaryOperation):
     @staticmethod
-    def _abstract():
+    def _abstract() -> None:
         pass
 
 
 @dataclass(frozen=True)
 class TtcDivision(TtcBinaryOperation):
     @staticmethod
-    def _abstract():
+    def _abstract() -> None:
         pass
 
 
 @dataclass(frozen=True)
 class TtcExponentiation(TtcBinaryOperation):
     @staticmethod
-    def _abstract():
+    def _abstract() -> None:
         pass
 
 
@@ -116,7 +116,7 @@ class TtcFunction(TtcExpression):
     arguments: list[float]
 
     @staticmethod
-    def _abstract():
+    def _abstract() -> None:
         pass
 
 
@@ -125,7 +125,7 @@ class TtcNumber(TtcExpression):
     value: float
 
     @staticmethod
-    def _abstract():
+    def _abstract() -> None:
         pass
 
 

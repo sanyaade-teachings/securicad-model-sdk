@@ -34,4 +34,4 @@ class View(Container):
         return self
 
     def delete(self) -> None:
-        self._model.delete_view(self.id)
+        self._model._delete_view(self.id)

@@ -20,6 +20,7 @@ from securicad.model.exceptions import (
     DuplicateAssociationException,
     MissingAssociationException,
     MissingObjectException,
+    ModelException,
     MultiplicityException,
 )
 
@@ -66,6 +67,13 @@ def test_create_invalid(model: Model, objects: list[Object]):
         objects[0].field("field1").connect(objects[1].field("field2"))
     with pytest.raises(MissingObjectException):
         objects[1].field("field2").connect(objects[0].field("field1"))
+
+
+def test_self_association_fails(objects: list[Object]):
+    with pytest.raises(ModelException):
+        objects[0].field("field1").connect(objects[0].field("field1"))
+    with pytest.raises(ModelException):
+        objects[0].field("field1").connect(objects[0].field("field2"))
 
 
 @pytest.mark.vehicle_lang

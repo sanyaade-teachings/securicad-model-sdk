@@ -16,16 +16,18 @@
 
 __version__ = "0.1.0"
 
-from . import es_serializer, json_serializer, scad_serializer
-from .association import Association
-from .attacker import Attacker
-from .attackstep import AttackStep
-from .defense import Defense
-from .icon import Icon
-from .model import Model
-from .object import Object
-from .visual.container import Container
-from .visual.group import Group
-from .visual.view import View
-from .visual.viewitem import ViewItem
-from .visual.viewobject import ViewObject
+from . import es_serializer as es_serializer
+from . import json_serializer as json_serializer
+from . import scad_serializer as scad_serializer
+from .association import Association as Association
+from .attacker import Attacker as Attacker
+from .attackstep import AttackStep as AttackStep
+from .defense import Defense as Defense
+from .icon import Icon as Icon
+from .model import Model as Model
+from .object import Object as Object
+from .visual.container import Container as Container
+from .visual.group import Group as Group
+from .visual.view import View as View
+from .visual.viewitem import ViewItem as ViewItem
+from .visual.viewobject import ViewObject as ViewObject

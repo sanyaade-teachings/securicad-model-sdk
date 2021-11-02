@@ -29,7 +29,7 @@ class StepExpression(ABC):
 
     @staticmethod
     @abstractmethod
-    def _abstract():
+    def _abstract() -> None:
         pass
 
 
@@ -42,28 +42,28 @@ class StepBinaryOperation(StepExpression):
 @dataclass(frozen=True)
 class StepUnion(StepBinaryOperation):
     @staticmethod
-    def _abstract():
+    def _abstract() -> None:
         pass
 
 
 @dataclass(frozen=True)
 class StepIntersection(StepBinaryOperation):
     @staticmethod
-    def _abstract():
+    def _abstract() -> None:
         pass
 
 
 @dataclass(frozen=True)
 class StepDifference(StepBinaryOperation):
     @staticmethod
-    def _abstract():
+    def _abstract() -> None:
         pass
 
 
 @dataclass(frozen=True)
 class StepCollect(StepBinaryOperation):
     @staticmethod
-    def _abstract():
+    def _abstract() -> None:
         pass
 
 
@@ -72,7 +72,7 @@ class StepTransitive(StepExpression):
     step_expression: StepExpression
 
     @staticmethod
-    def _abstract():
+    def _abstract() -> None:
         pass
 
 
@@ -82,7 +82,7 @@ class StepSubType(StepExpression):
     step_expression: StepExpression
 
     @staticmethod
-    def _abstract():
+    def _abstract() -> None:
         pass
 
 
@@ -96,7 +96,7 @@ class StepField(StepReference):
     field: Field
 
     @staticmethod
-    def _abstract():
+    def _abstract() -> None:
         pass
 
 
@@ -105,7 +105,7 @@ class StepAttackStep(StepReference):
     attack_step: AttackStep
 
     @staticmethod
-    def _abstract():
+    def _abstract() -> None:
         pass
 
 
@@ -114,5 +114,5 @@ class StepVariable(StepReference):
     variable: Variable
 
     @staticmethod
-    def _abstract():
+    def _abstract() -> None:
         pass

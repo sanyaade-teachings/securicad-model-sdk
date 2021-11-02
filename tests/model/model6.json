@@ -104,7 +104,7 @@
           "y": 40
         }
       },
-      "load_on_start": false
+      "load_on_start": true
     }
   ]
 }

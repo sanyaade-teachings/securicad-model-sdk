@@ -96,6 +96,12 @@ class MissingAttackStepException(ModelException):
         super().__init__(f"{attack_step} isn't connected to {attacker}.")
 
 
+class InvalidModelException(ModelException):
+    def __init__(self, errors) -> None:
+        self.errors = errors
+        super().__init__(f"Invalid model: {errors}")
+
+
 # LANG
 
 

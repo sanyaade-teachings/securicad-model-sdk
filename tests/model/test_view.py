@@ -63,7 +63,7 @@ def test_nested_object_delete(view: View, objects: list[Object]):
     view.create_group("g1", "icon")
     group = view.create_group("g2", "icon")
     group.add_object(objects[0])
-    view.delete_object(objects[0])
+    view.object(objects[0]).delete()
     assert not view.objects()
 
 
@@ -71,7 +71,7 @@ def test_nested_group_delete(view: View):
     view.create_group("g1", "icon")
     group = view.create_group("g2", "icon")
     g = group.create_group("g3", "icon")
-    view.delete_group(g.id)
+    view.group(g.id).delete()
     groups = view.groups()
     assert g not in groups
     assert len(groups) == 2

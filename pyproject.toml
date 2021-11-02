@@ -11,6 +11,19 @@ target-version = ["py38"]
 
 [tool.mypy]
 python_version = "3.8"
+strict = true
+pretty = true
+
+[[tool.mypy.overrides]]
+module = [
+  "securicad.model.ModelViewsPackage.*",
+  "securicad.model.ObjectModelPackage.*"
+]
+ignore_errors = true
+
+[tool.pylint.MASTER]
+jobs = 0
+ignore = "securicad/model/ObjectModelPackage,securicad/model/ModelViewsPackage"
 
 [tool.pylint.messages_control]
 # C0330, C0326: https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#pylint
@@ -28,6 +41,9 @@ disable = "C0330, C0326, C0114, C0115, C0116, C0301, W0212, R0201, R0902, R0903,
 [tool.pylint.format]
 max-line-length = "88"
 good-names = "fp"
+
+[tool.pylint.similarities]
+min-similarity-lines = 15
 
 [tool.pyright]
 reportImportCycles = false

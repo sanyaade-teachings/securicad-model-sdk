@@ -33,6 +33,7 @@ class Group(ViewItem, Container):
     ) -> None:
         ViewItem.__init__(self, x, y, parent)
         Container.__init__(self, meta, name, id)
+        self._icon: str
         self.icon = icon
 
     @property
@@ -47,6 +48,7 @@ class Group(ViewItem, Container):
     # inherited viewitem
 
     def move(self, target: Container) -> None:
+        target._validate_can_move_here(obj=self)
         del self._parent._groups[self.id]
         target._groups[self.id] = self
         self._parent = target
@@ -54,4 +56,4 @@ class Group(ViewItem, Container):
     # inherited viewitem, container
 
     def delete(self) -> None:
-        self._parent.delete_group(self.id)
+        self._parent._delete_group(self.id)

@@ -63,7 +63,7 @@ class Object(Base):
         return self._associations[name]
 
     def delete(self) -> None:
-        self._model.delete_object(self.id)
+        self._model._delete_object(self.id)
 
     def attack_step(self, name: str) -> AttackStep:
         if name in self._attack_steps:

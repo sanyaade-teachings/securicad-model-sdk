@@ -31,10 +31,12 @@ from .exceptions import (
     DuplicateIconException,
     DuplicateObjectException,
     DuplicateViewException,
+    InvalidModelException,
     MissingAssociationException,
     MissingIconException,
     MissingObjectException,
     MissingViewException,
+    ModelException,
 )
 from .icon import Icon
 from .object import Object
@@ -79,44 +81,36 @@ class Model(Base):
             Object, list[str]
         ] = collections.defaultdict(list)
 
-    def create_icon(self, name: str, format: str, data: bytes, license: str) -> Icon:
-        if name in self._icons:
-            raise DuplicateIconException(name)
-        icon = Icon({}, name, format, data, license)
-        self._icons[name] = icon
-        return icon
-
     def _get_id(self, id: Optional[int] = None) -> int:
         return self._counter if id is None else id
 
-    def _update_counter(self, id: int):
+    def _update_counter(self, id: int) -> None:
         self._counter = max(id + 1, self._counter)
+
+    ##
+    # Icon
+
+    def create_icon(self, name: str, format: str, data: bytes, license: str) -> Icon:
+        if name in self._icons:
+            raise DuplicateIconException(name)
+        icon = Icon(
+            meta={}, model=self, name=name, format=format, data=data, license=license
+        )
+        self._icons[name] = icon
+        return icon
 
     def icon(self, name: str) -> Icon:
         if name not in self._icons:
             raise MissingIconException(name)
         return self._icons[name]
 
-    def delete_icon(self, name: str) -> None:
+    def _delete_icon(self, name: str) -> None:
         if name not in self._icons:
             raise MissingIconException(name)
         del self._icons[name]
 
-    def _check_association(self, association: Association) -> None:
-        if not self.has_object(association.source_object.id):
-            raise MissingObjectException(association.source_object)
-        if not self.has_object(association.target_object.id):
-            raise MissingObjectException(association.target_object)
-        if (
-            association.target_object
-            in association.source_object.field(association.source_field).objects()
-        ):
-            raise DuplicateAssociationException(association)
-
-    def _add_object(self, obj: Object) -> None:
-        self._update_counter(obj.id)
-        self._objects[obj.id] = obj
-        self._validator.validate_multiplicity(obj)
+    ##
+    # Validation
 
     @property
     def multiplicity_errors(self) -> list[str]:
@@ -128,8 +122,22 @@ class Model(Base):
     def attacker_errors(self) -> list[str]:
         return self._validator.validate_attackers()
 
-    def validate(self) -> list[str]:
+    @property
+    def validation_errors(self) -> list[str]:
         return self.multiplicity_errors + self.attacker_errors
+
+    def validate(self) -> None:
+        errors = self.validation_errors
+        if errors:
+            raise InvalidModelException(errors)
+
+    ###
+    # Object
+
+    def _add_object(self, obj: Object) -> None:
+        self._update_counter(obj.id)
+        self._objects[obj.id] = obj
+        self._validator.validate_multiplicity(obj)
 
     def has_object(self, id: int) -> bool:
         return id in self._objects
@@ -145,24 +153,6 @@ class Model(Base):
         return utility.iterable_filter(
             self._objects.values(), name=name, asset_type=asset_type
         )
-
-    def attackers(self, *, name: Optional[str] = None):
-        return utility.iterable_filter(self._attackers.values(), name=name)
-
-    def create_attacker(
-        self,
-        name: str = "Attacker",
-        *,
-        id: Optional[int] = None,
-        meta: Optional[dict[str, Any]] = None,
-    ) -> Attacker:
-        id = self._get_id(id)
-        if self.has_object(id):
-            raise DuplicateObjectException(self.object(id))
-        attacker = Attacker(meta or {}, self, id, name)
-        self._attackers[attacker.id] = attacker
-        self._add_object(attacker)
-        return attacker
 
     def create_object(
         self,
@@ -182,6 +172,98 @@ class Model(Base):
         self._add_object(obj)
         return obj
 
+    def _delete_object(self, id: int) -> None:
+        if not self.has_object(id):
+            raise MissingObjectException(id)
+        obj = self._objects[id]
+
+        for field in obj._associations.values():
+            for field_target in set(field.targets):  # copy set
+                obj.field(field.name).disconnect(field_target.target.field.object)
+
+        for view in self._views.values():
+            if view.has_object(obj):
+                view.object(obj).delete()
+
+        del self._objects[id]
+        if isinstance(obj, Attacker):
+            del self._attackers[id]
+            for obj2, steps in obj._first_steps.items():
+                obj2._attackers.remove(obj)
+                for association in steps.values():
+                    self._associations.remove(association)
+
+        del self._multiplicity_errors[obj]
+
+        for attacker in obj._attackers:
+            for association in attacker._first_steps[obj].values():
+                self._associations.remove(association)
+            del attacker._first_steps[obj]
+
+    ##
+    # Attacker
+
+    def create_attacker(
+        self,
+        name: str = "Attacker",
+        *,
+        id: Optional[int] = None,
+        meta: Optional[dict[str, Any]] = None,
+    ) -> Attacker:
+        id = self._get_id(id)
+        if self.has_object(id):
+            raise DuplicateObjectException(self.object(id))
+        attacker = Attacker(meta or {}, self, id, name)
+        self._attackers[attacker.id] = attacker
+        self._add_object(attacker)
+        return attacker
+
+    def attackers(self, *, name: Optional[str] = None) -> list[Attacker]:
+        return utility.iterable_filter(self._attackers.values(), name=name)
+
+    def _check_connection(
+        self, attacker: Attacker, obj: Object, attack_step: AttackStep
+    ) -> None:
+        """Checks that the potential connection is valid in the model."""
+        if not self.has_object(attacker.id):
+            raise MissingObjectException(attacker)
+        if not self.has_object(obj.id):
+            raise MissingObjectException(obj)
+        if attack_step.name in attacker._first_steps[obj]:
+            raise DuplicateAttackStepException(attacker, attack_step)
+
+    def _add_connection(
+        self, attacker: Attacker, obj: Object, attack_step: str
+    ) -> None:
+        association = Association(
+            meta={},
+            source_object=attacker,
+            source_field="firstSteps",
+            target_object=obj,
+            target_field=f"{attack_step}.attacker",
+        )
+        attacker._first_steps[obj][attack_step] = association
+        obj._attackers.add(attacker)
+        self._associations.add(association)
+
+    ##
+    # Association
+
+    def _check_association(self, association: Association) -> None:
+        if association.source_object == association.target_object:
+            raise ModelException(
+                f"Cannot connect {association.source_object} to itself."
+            )
+        if not self.has_object(association.source_object.id):
+            raise MissingObjectException(association.source_object)
+        if not self.has_object(association.target_object.id):
+            raise MissingObjectException(association.target_object)
+        if (
+            association.target_object
+            in association.source_object.field(association.source_field).objects()
+        ):
+            raise DuplicateAssociationException(association)
+
     def _add_association(self, association: Association) -> None:
         source_field = association.source_object.field(association.source_field)
         target_field = association.target_object.field(association.target_field)
@@ -199,27 +281,6 @@ class Model(Base):
         self._associations.add(association)
         self._validator.validate_multiplicity(association.source_object)
         self._validator.validate_multiplicity(association.target_object)
-
-    def _check_connection(
-        self, attacker: Attacker, obj: Object, attack_step: AttackStep
-    ) -> None:
-        """Checks that the potential connection is valid in the model."""
-        if not self.has_object(attacker.id):
-            raise MissingObjectException(attacker)
-        if not self.has_object(obj.id):
-            raise MissingObjectException(obj)
-        if attack_step.name in attacker._first_steps[obj]:
-            raise DuplicateAttackStepException(attacker, attack_step)
-
-    def _add_connection(
-        self, attacker: Attacker, obj: Object, attack_step: str
-    ) -> None:
-        association = Association(
-            {}, attacker, "firstSteps", obj, f"{attack_step}.attacker"
-        )
-        attacker._first_steps[obj][attack_step] = association
-        obj._attackers.add(attacker)
-        self._associations.add(association)
 
     def _create_association(
         self,
@@ -264,32 +325,8 @@ class Model(Base):
         self._validator.validate_multiplicity(source_object)
         self._validator.validate_multiplicity(target_object)
 
-    def delete_object(self, id: int) -> None:
-        if not self.has_object(id):
-            raise MissingObjectException(id)
-        obj = self._objects[id]
-
-        for field in obj._associations.values():
-            for field_target in set(field.targets):  # copy set
-                obj.field(field.name).disconnect(field_target.target.field.object)
-
-        del self._objects[id]
-        if isinstance(obj, Attacker):
-            del self._attackers[id]
-            for obj2, steps in obj._first_steps.items():
-                obj2._attackers.remove(obj)
-                for association in steps.values():
-                    self._associations.remove(association)
-
-        del self._multiplicity_errors[obj]
-
-        for view in self._views.values():
-            view.delete_object(obj)
-
-        for attacker in obj._attackers:
-            for association in attacker._first_steps[obj].values():
-                self._associations.remove(association)
-            del attacker._first_steps[obj]
+    ##
+    # View
 
     def _add_view(self, view: View) -> None:
         self._update_counter(view.id)
@@ -311,7 +348,7 @@ class Model(Base):
     def views(self, *, name: Optional[str] = None) -> list[View]:
         return utility.iterable_filter(self._views.values(), name=name)
 
-    def delete_view(self, id: int) -> None:
+    def _delete_view(self, id: int) -> None:
         if id not in self._views:
             raise MissingViewException(id)
         del self._views[id]
