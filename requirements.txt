@@ -8,9 +8,9 @@ attrs==21.2.0
     # via jsonschema
 future-fstrings==1.2.0
     # via pyecore
-jsonschema==4.0.1
+jsonschema==4.1.2
     # via securicad-model (setup.cfg)
-lxml==4.6.3
+lxml==4.6.4
     # via pyecore
 ordered-set==4.0.2
     # via pyecore

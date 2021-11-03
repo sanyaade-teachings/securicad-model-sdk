@@ -52,7 +52,7 @@ def test_client(model: Model, root: str):
 def test_software_product(model: Model, asset: str, target_asset: str):
     """SoftwareProduct must be connected to only hosts, clients, or services."""
     if asset == target_asset:
-        pytest.skip()
+        pytest.skip("not applicable parameters")
     software_product = model.create_object("SoftwareProduct")
     obj = model.create_object(asset)
     software_product.field(f"{asset.lower()}s").connect(obj.field("softwareProduct"))
@@ -124,7 +124,7 @@ def test_keystore_restriction(
 ):
     """Connected to one of host,client,service,webapplications,or datastore."""
     if asset == target_asset:
-        pytest.skip()
+        pytest.skip("not applicable parameters")
     keystore = model.create_object("Keystore")
     obj = model.create_object(asset)
     keystore.field(field).connect(obj.field(connected))
@@ -218,7 +218,7 @@ def test_ids(
 ):
     """Connected to either router or host."""
     if asset == target_asset:
-        pytest.skip()
+        pytest.skip("not applicable parameters")
     ids = model.create_object("IDS")
     obj = model.create_object(asset)
     ids.field(asset.lower()).connect(obj.field(field))
@@ -246,7 +246,7 @@ def test_vuln_scanner_host(
     or scanned without auth.
     """
     if field == target_field:
-        pytest.skip()
+        pytest.skip("not applicable parameters")
     scanner = model.create_object("VulnerabilityScanner")
     host = model.create_object("Host")
     scanner.field(field).connect(host.field(connected))
@@ -268,7 +268,7 @@ def test_vuln_scanner_network(
 ):
     """Network connected to vulnerability scanner can only be in one of scanned w/ or w/o auth."""
     if field == target_field:
-        pytest.skip()
+        pytest.skip("not applicable parameters")
     scanner = model.create_object("VulnerabilityScanner")
     network = model.create_object("Network")
     scanner.field(field).connect(network.field(connected))
@@ -296,7 +296,7 @@ def test_user_account(
 ):
     """UserAccount can only be connected to one typeof AccessControl"""
     if field == target_field:
-        pytest.skip()
+        pytest.skip("not applicable parameters")
     user_account = model.create_object("UserAccount")
     ac1 = model.create_object("AccessControl")
     user_account.field(field).connect(ac1.field(connected))
