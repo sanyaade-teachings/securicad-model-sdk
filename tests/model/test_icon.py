@@ -23,14 +23,14 @@ from securicad.model.exceptions import (
 )
 
 
-@pytest.mark.vehicle_lang()
+@pytest.mark.vehiclelang
 def test_create_invalid(view: View):
     with pytest.raises(InvalidIconException):
         view.create_group("group", "?")
 
 
-def test_create_any(vehicle_lang: Lang):
-    model = Model(lang=vehicle_lang, validate_icons=False)
+def test_create_any(vehiclelang: Lang):
+    model = Model(lang=vehiclelang, validate_icons=False)
     view = model.create_view("view")
     assert view.create_group("group", "?")
 

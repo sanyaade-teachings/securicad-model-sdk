@@ -76,7 +76,7 @@ def test_self_association_fails(objects: list[Object]):
         objects[0].field("field1").connect(objects[0].field("field2"))
 
 
-@pytest.mark.vehicle_lang
+@pytest.mark.vehiclelang
 def test_multiplicity(model: Model):
     ecu1 = model.create_object("ECU")
     ecu2 = model.create_object("ECU")

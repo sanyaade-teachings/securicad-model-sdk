@@ -52,5 +52,6 @@ reportPrivateUsage = false
 [tool.pytest.ini_options]
 markers = [
   "object_count",
-  "vehicle_lang",
+  "vehiclelang",
+  "securilang"
 ]

@@ -31,33 +31,33 @@ def test_no_lang():
         Model()
 
 
-@pytest.mark.vehicle_lang
+@pytest.mark.vehiclelang
 def test_invalid_asset(model: Model):
     with pytest.raises(InvalidAssetException):
         model.create_object("?")
 
 
-@pytest.mark.vehicle_lang
+@pytest.mark.vehiclelang
 def test_abstract_asset(model: Model):
     with pytest.raises(InvalidAssetException):
         model.create_object("PhysicalMachine")
 
 
-@pytest.mark.vehicle_lang
+@pytest.mark.vehiclelang
 def test_invalid_attack_step(model: Model):
     ecu = model.create_object("ECU")
     with pytest.raises(InvalidAttackStepException):
         ecu.attack_step("?")
 
 
-@pytest.mark.vehicle_lang
+@pytest.mark.vehiclelang
 def test_invalid_defense(model: Model):
     ecu = model.create_object("ECU")
     with pytest.raises(InvalidDefenseException):
         ecu.defense("?")
 
 
-@pytest.mark.vehicle_lang
+@pytest.mark.vehiclelang
 def test_invalid_field(model: Model):
     ecu = model.create_object("ECU")
     firmware = model.create_object("Firmware")
@@ -67,7 +67,7 @@ def test_invalid_field(model: Model):
         ecu.field("firmware").connect(firmware.field("?"))
 
 
-@pytest.mark.vehicle_lang
+@pytest.mark.vehiclelang
 def test_invalid_association(model: Model):
     ecu1 = model.create_object("ECU")
     ecu2 = model.create_object("ECU")
@@ -77,7 +77,7 @@ def test_invalid_association(model: Model):
         ecu1.field("firmware").connect(ecu2.field("firmware"))
 
 
-@pytest.mark.vehicle_lang
+@pytest.mark.vehiclelang
 def test_max_multiplicity(model: Model):
     ecu1 = model.create_object("ECU")
     ecu2 = model.create_object("ECU")
@@ -87,7 +87,7 @@ def test_max_multiplicity(model: Model):
         firmware.field("hardware").connect(ecu2.field("firmware"))
 
 
-@pytest.mark.vehicle_lang
+@pytest.mark.vehiclelang
 def test_invalid_icon(view: View):
     with pytest.raises(InvalidIconException):
         view.create_group("group", "?ICON?")

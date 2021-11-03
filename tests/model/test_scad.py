@@ -23,11 +23,11 @@ if TYPE_CHECKING:
     from securicad.model import Object
 
 
-def test_serialize_loop_model2(model2_json: dict[str, Any], vehicle_lang: Lang):
-    model = json_serializer.deserialize_model(model2_json, lang=vehicle_lang)
+def test_serialize_loop_model2(model2_json: dict[str, Any], vehiclelang: Lang):
+    model = json_serializer.deserialize_model(model2_json, lang=vehiclelang)
     scad = BytesIO()
     scad_serializer.serialize_model(model, scad)
-    looped = scad_serializer.deserialize_model(scad, lang=vehicle_lang)
+    looped = scad_serializer.deserialize_model(scad, lang=vehiclelang)
     assert json_serializer.serialize_model(
         looped, sort=True
     ) == json_serializer.serialize_model(model, sort=True)

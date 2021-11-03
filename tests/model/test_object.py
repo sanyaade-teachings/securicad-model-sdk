@@ -60,7 +60,7 @@ def test_connected_filter_type_nolang(model: Model):
     assert [machine] == network.connected_objects(asset_type="Machine")
 
 
-@pytest.mark.vehicle_lang
+@pytest.mark.vehiclelang
 def test_connected_filter_type(model: Model):
     # GatewayECU -> ECU -> Machine -> (abstract) PhysicalMachine
 

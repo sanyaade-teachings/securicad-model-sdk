@@ -24,8 +24,13 @@ from securicad.model import Attacker, Group, Icon, Model, Object, View
 
 
 @pytest.fixture(scope="session")
-def vehicle_lang() -> Lang:
+def vehiclelang() -> Lang:
     return Lang(Path(__file__).parent.joinpath("org.mal-lang.vehiclelang-1.0.0.mar"))
+
+
+@pytest.fixture(scope="session")
+def securilang() -> Lang:
+    return Lang(Path(__file__).parent.joinpath("com.foreseeti.securilang-2.1.9.mar"))
 
 
 for name in ["model1", "model2", "model3", "model4", "model5", "model6"]:
@@ -41,9 +46,11 @@ for name in ["simple", "text", "model"]:
 
 
 @pytest.fixture
-def model(vehicle_lang: Lang, request: pytest.FixtureRequest) -> Model:
-    if request.node.get_closest_marker("vehicle_lang"):
-        return Model(lang=vehicle_lang)
+def model(vehiclelang: Lang, securilang: Lang, request: pytest.FixtureRequest) -> Model:
+    if request.node.get_closest_marker("vehiclelang"):
+        return Model(lang=vehiclelang)
+    elif request.node.get_closest_marker("securilang"):
+        return Model(lang=securilang)
     else:
         return Model(lang_id="null", lang_version="0.0.0")
 

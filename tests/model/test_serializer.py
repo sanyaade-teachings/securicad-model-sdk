@@ -22,8 +22,8 @@ from securicad.langspec import Lang, TtcDistribution, TtcFunction
 from securicad.model import Model, json_serializer
 
 
-def test_deserialize_model2(model2_json: dict[str, Any], vehicle_lang: Lang):
-    model = json_serializer.deserialize_model(model2_json, lang=vehicle_lang)
+def test_deserialize_model2(model2_json: dict[str, Any], vehiclelang: Lang):
+    model = json_serializer.deserialize_model(model2_json, lang=vehiclelang)
     assert model._counter == 3
     assert len(model.objects()) == 2
     assert model.object(1).asset_type == "ECU"
@@ -50,7 +50,7 @@ def test_create_model3(model: Model, model3_json: dict[str, Any]):
     assert json_serializer.serialize_model(model, sort=True) == model3_json
 
 
-@pytest.mark.vehicle_lang
+@pytest.mark.vehiclelang
 def test_create_model1(model: Model, model1_json: dict[str, Any]):
     ecu = model.create_object("ECU", "Base ECU")
     ecu.defense("operationModeProtection").probability = 0.5
@@ -74,20 +74,20 @@ def test_create_model1(model: Model, model1_json: dict[str, Any]):
     assert json_serializer.serialize_model(model, sort=True) == model1_json
 
 
-def test_validation_errors_model1(model1_json: dict[str, Any], vehicle_lang: Lang):
-    model = json_serializer.deserialize_model(model1_json, lang=vehicle_lang)
+def test_validation_errors_model1(model1_json: dict[str, Any], vehiclelang: Lang):
+    model = json_serializer.deserialize_model(model1_json, lang=vehiclelang)
     assert model.validation_errors == []
 
 
-def test_validate_model1(model1_json: dict[str, Any], vehicle_lang: Lang):
-    model = json_serializer.deserialize_model(model1_json, lang=vehicle_lang)
+def test_validate_model1(model1_json: dict[str, Any], vehiclelang: Lang):
+    model = json_serializer.deserialize_model(model1_json, lang=vehiclelang)
     model.validate()
 
 
-def test_serialize_loop(model1_json: dict[str, Any], vehicle_lang: Lang):
+def test_serialize_loop(model1_json: dict[str, Any], vehiclelang: Lang):
     assert (
         json_serializer.serialize_model(
-            json_serializer.deserialize_model(model1_json, lang=vehicle_lang), sort=True
+            json_serializer.deserialize_model(model1_json, lang=vehiclelang), sort=True
         )
         == model1_json
     )

@@ -40,6 +40,7 @@ from .exceptions import (
 )
 from .icon import Icon
 from .object import Object
+from .securilang_validator import SecurilangValidator
 from .validator import Validator
 from .visual.view import View
 
@@ -70,7 +71,10 @@ class Model(Base):
 
         self.name = name
         self._lang = lang
-        self._validator = Validator(self, validate_icons)
+        if lang and lang.defines["id"] == "com.foreseeti.securilang":
+            self._validator: Validator = SecurilangValidator(self, validate_icons)
+        else:
+            self._validator = Validator(self, validate_icons)
         self._views: dict[int, View] = {}
         self._objects: dict[int, Object] = {}
         self._attackers: dict[int, Attacker] = {}
@@ -86,6 +90,9 @@ class Model(Base):
 
     def _update_counter(self, id: int) -> None:
         self._counter = max(id + 1, self._counter)
+
+    def _add_error(self, obj: Object, error: str):
+        self._multiplicity_errors[obj].append(error)
 
     ##
     # Icon
