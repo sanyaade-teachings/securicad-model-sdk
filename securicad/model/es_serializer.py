@@ -22,6 +22,7 @@ from securicad.langspec import AttackStepType, TtcDistribution, TtcFunction
 
 from . import utility
 from .attacker import Attacker
+from .meta import meta_validator
 
 if TYPE_CHECKING:  # pragma: no cover
     from securicad.langspec import Lang
@@ -37,9 +38,9 @@ if TYPE_CHECKING:  # pragma: no cover
 def serialize_attack_step(attack_step: AttackStep):
     data = {
         "name": utility.uc_first(attack_step.name),
-        "consequence": attack_step.meta.get("consequence", None),
-        "uppercost": attack_step.meta.get("costUpperLimit", None),
-        "lowercost": attack_step.meta.get("costLowerLimit", None),
+        "consequence": attack_step.meta.get("consequence", 0) or None,
+        "uppercost": attack_step.meta.get("costUpperLimit", 0) or None,
+        "lowercost": attack_step.meta.get("costLowerLimit", 0) or None,
     }
     if attack_step.ttc is not None:
         assert isinstance(attack_step.ttc, TtcFunction)
@@ -72,6 +73,7 @@ def serialize_model(model: Model, *, sort: bool = False) -> dict[str, Any]:
     def sort_dict_list(associations: list[dict[str, Any]]) -> list[dict[str, Any]]:
         return sorted(associations, key=json.dumps) if sort else associations
 
+    meta_validator.validate_model(model)
     return {
         "formatversion": 1,
         "mid": model.meta.get("mid", str(random.randint(10 ** 9, 10 ** 25 - 1))),
@@ -205,9 +207,9 @@ def deserialize_model(
             for attack_step_data in object_data["attacksteps"]:
                 attack_step = obj.attack_step(attack_lookup(attack_step_data["name"]))
                 attack_step.meta = {
-                    "costUpperLimit": attack_step_data["uppercost"],
-                    "costLowerLimit": attack_step_data["lowercost"],
-                    "consequence": attack_step_data["consequence"],
+                    "costUpperLimit": attack_step_data["uppercost"] or 0,
+                    "costLowerLimit": attack_step_data["lowercost"] or 0,
+                    "consequence": attack_step_data["consequence"] or 0,
                 }
                 if attack_step_data["distribution"] is not None:
                     name, *parameters = attack_step_data["distribution"].split(",")

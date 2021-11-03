@@ -28,6 +28,65 @@ def test_create(model: Model, objects: list[Object]):
     assert objects[0] == model.object(objects[0].id)
 
 
+def test_connected_filter(objects: list[Object]):
+    objects[0].field("a").connect(objects[1].field("a"))
+    objects[0].field("a").connect(objects[2].field("a"))
+    objects[0].field("b").connect(objects[3].field("b"))
+
+    field_a = objects[0].connected_objects(field="a")
+    assert len(field_a) == 2
+    assert objects[1] in field_a
+    assert objects[2] in field_a
+    assert [objects[3]] == objects[0].connected_objects(field="b")
+
+
+def test_connected_filter_type_nolang(model: Model):
+    gateway_ecu = model.create_object("GatewayECU")
+    network = model.create_object("Network")
+    gateway_ecu.field("machineNetworks").connect(network.field("networkMachines"))
+    machine = model.create_object("Machine")
+    machine.field("machineNetworks").connect(network.field("networkMachines"))
+    dataflow = model.create_object("ConnectionlessDataflow")
+    network.field("dataflows").connect(dataflow.field("networks"))
+
+    network_machines = network.connected_objects(field="networkMachines")
+    connected = network.connected_objects()
+
+    assert len(connected) == 3
+    assert len(network_machines) == 2
+    assert gateway_ecu in network_machines
+    assert machine in network_machines
+    assert not network.connected_objects(field="networkMachines", asset_type="ECU")
+    assert [machine] == network.connected_objects(asset_type="Machine")
+
+
+@pytest.mark.vehicle_lang
+def test_connected_filter_type(model: Model):
+    # GatewayECU -> ECU -> Machine -> (abstract) PhysicalMachine
+
+    gateway_ecu = model.create_object("GatewayECU")
+    network = model.create_object("Network")
+    gateway_ecu.field("machineNetworks").connect(network.field("networkMachines"))
+    machine = model.create_object("Machine")
+    machine.field("machineNetworks").connect(network.field("networkMachines"))
+    dataflow = model.create_object("ConnectionlessDataflow")
+    network.field("dataflows").connect(dataflow.field("networks"))
+
+    network_machines = network.connected_objects(field="networkMachines")
+    connected = network.connected_objects()
+
+    assert len(connected) == 3
+    assert len(network_machines) == 2
+    assert gateway_ecu in network_machines
+    assert machine in network_machines
+    assert [gateway_ecu] == network.connected_objects(
+        field="networkMachines", asset_type="ECU"
+    )
+    assert sorted(network_machines, key=hash) == sorted(
+        network.connected_objects(asset_type="Machine"), key=hash
+    )
+
+
 def test_filter(model: Model):
     ecu_name1 = model.create_object("ECU", "name1")
     ecu_name2 = model.create_object("ECU", "name2")

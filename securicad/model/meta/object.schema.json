@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "properties": {
+    "tags": {
+      "type": "object"
+    },
+    "capex": {
+      "type": "number"
+    },
+    "opex": {
+      "type": "number"
+    },
+    "description": {
+      "type": "string"
+    },
+    "existence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  }
+}

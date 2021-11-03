@@ -27,6 +27,7 @@ from securicad.langspec import AttackStepType, Lang, TtcDistribution, TtcFunctio
 
 from . import ModelViewsPackage, ObjectModelPackage, utility
 from .attacker import Attacker
+from .meta import meta_validator
 
 if TYPE_CHECKING:  # pragma: no cover
     from .attackstep import AttackStep
@@ -470,12 +471,15 @@ def write_scad(
 
 
 def serialize_model(model: Model, file: str | PathLike[Any] | IO[bytes]) -> None:
+    meta_validator.validate_model(model)
     eom = ObjectModelPackage.XMIObjectModel(
         samples=model.meta.get("samples", None),
         warningThreshold=model.meta.get("warningThreshold", None),
     )
 
-    eom.objects.extend(serialize_object(obj) for obj in model._objects.values())  # type: ignore
+    eom.objects.extend(  # type: ignore
+        serialize_object(obj) for obj in model._objects.values()
+    )
 
     for association in model._associations:
         eom.associations.append(  # type: ignore

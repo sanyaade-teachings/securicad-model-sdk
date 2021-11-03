@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "consequence": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "costUpperLimit": {
+      "type": "number"
+    },
+    "costLowerLimit": {
+      "type": "number"
+    },
+    "description": {
+      "type": "string"
+    }
+  }
+}

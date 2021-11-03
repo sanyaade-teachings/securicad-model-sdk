@@ -14,8 +14,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
+from . import utility
 from .association import Field
 from .attackstep import AttackStep
 from .base import Base
@@ -61,6 +62,30 @@ class Object(Base):
         if name not in self._associations:
             self._associations[name] = Field(self, name)
         return self._associations[name]
+
+    def connected_objects(
+        self, *, field: Optional[str] = None, asset_type: Optional[str] = None
+    ) -> list[Object]:
+        if field:
+            collection = self._associations[field].targets
+        else:
+            collection = [
+                target
+                for field in self._associations.values()
+                for target in field.targets
+            ]
+        if self._model._lang and asset_type:
+            return [
+                target.target.field.object
+                for target in collection
+                if self._model._lang.assets[target.target.field.object.asset_type]
+                <= self._model._lang.assets[asset_type]
+            ]
+        else:
+            return utility.iterable_filter(
+                (target.target.field.object for target in collection),
+                asset_type=asset_type,
+            )
 
     def delete(self) -> None:
         self._model._delete_object(self.id)

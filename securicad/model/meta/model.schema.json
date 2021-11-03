@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "properties": {
+    "samples": {
+      "type": "integer"
+    },
+    "warningThreshold": {
+      "type": "integer"
+    },
+    "tags": {
+      "type": "object"
+    },
+    "mid": {
+      "type": "string",
+      "pattern": "^-?[0-9]{10,25}$"
+    }
+  }
+}
