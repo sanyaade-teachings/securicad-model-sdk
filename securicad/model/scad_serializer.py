@@ -377,7 +377,7 @@ def serialize_defense(defense: Defense) -> ObjectModelPackage.XMIAttribute:
 
 def serialize_object(obj: Object) -> ObjectModelPackage.XMIObject:
     xmi_object = ObjectModelPackage.XMIObject(
-        id=str(obj.id),
+        id=str(utility.id_pad(obj.id)),
         exportedId=obj.id,
         metaConcept=obj.asset_type,
         name=obj.name if obj.name else obj.asset_type,
@@ -413,7 +413,7 @@ def serialize_group(
     tuple[ObjectModelPackage.XMIObjectGroup, ModelViewsPackage.GroupLayout], None, None
 ]:
     xmi_object_group = ObjectModelPackage.XMIObjectGroup(
-        id=str(group.id),
+        id=str(utility.id_pad(group.id)),
         name=group.name,
         expand=group.meta.get("expand", False),
         attributesJsonString=json.dumps(group.meta.get("tags", {})),
@@ -421,25 +421,31 @@ def serialize_group(
     xmi_object_group.description = group.meta.get("description", None)
 
     xmi_group_layout = ModelViewsPackage.GroupLayout(
-        id=group.id, icon=group.icon, color=group.meta.get("color", None)
+        id=utility.id_pad(group.id),
+        icon=group.icon,
+        color=group.meta.get("color", None),
     )
 
     yield xmi_object_group, xmi_group_layout
 
     for obj in group._objects.values():
-        xmi_group_item = ModelViewsPackage.GroupItem(id=obj.id, x=obj.x, y=obj.y)
+        xmi_group_item = ModelViewsPackage.GroupItem(
+            id=utility.id_pad(obj.id), x=int(obj.x), y=int(obj.y)
+        )
         xmi_group_layout.groupitem.append(xmi_group_item)  # type: ignore
         xmi_object_group.items.append(  # type: ignore
-            ObjectModelPackage.XMIObjectGroupItem(id=str(obj.id))
+            ObjectModelPackage.XMIObjectGroupItem(id=str(utility.id_pad(obj.id)))
         )
 
     for sub_group in group._groups.values():
         xmi_group_item = ModelViewsPackage.GroupItem(
-            id=sub_group.id, x=sub_group.x, y=sub_group.y
+            id=utility.id_pad(sub_group.id),
+            x=int(sub_group.x),
+            y=int(sub_group.y),
         )
         xmi_group_layout.groupitem.append(xmi_group_item)  # type: ignore
         xmi_object_group.items.append(  # type: ignore
-            ObjectModelPackage.XMIObjectGroupItem(id=str(sub_group.id))
+            ObjectModelPackage.XMIObjectGroupItem(id=str(utility.id_pad(group.id)))
         )
         for object_group, group_layout in serialize_group(sub_group):
             yield object_group, group_layout
@@ -484,9 +490,9 @@ def serialize_model(model: Model, file: str | PathLike[Any] | IO[bytes]) -> None
     for association in model._associations:
         eom.associations.append(  # type: ignore
             ObjectModelPackage.XMIAssociation(
-                sourceObject=str(association.source_object.id),
+                sourceObject=str(utility.id_pad(association.source_object.id)),
                 sourceProperty=association.source_field,
-                targetObject=str(association.target_object.id),
+                targetObject=str(utility.id_pad(association.target_object.id)),
                 targetProperty=association.target_field,
             )
         )
@@ -500,13 +506,15 @@ def serialize_model(model: Model, file: str | PathLike[Any] | IO[bytes]) -> None
         for obj in view._objects.values():
             xmi_view.viewItem.append(  # type: ignore
                 ModelViewsPackage.ViewNode(
-                    location=ModelViewsPackage.Location(x=obj.x, y=obj.y), id=obj.id
+                    location=ModelViewsPackage.Location(x=int(obj.x), y=int(obj.y)),
+                    id=utility.id_pad(obj.id),
                 )
             )
 
         for group in view._groups.values():
             xmi_group_node = ModelViewsPackage.GroupNode(
-                location=ModelViewsPackage.Location(x=group.x, y=group.y), id=group.id
+                location=ModelViewsPackage.Location(x=int(group.x), y=int(group.y)),
+                id=utility.id_pad(group.id),
             )
             xmi_view.groupNode.append(xmi_group_node)  # type: ignore
             for object_group, group_layout in serialize_group(group):

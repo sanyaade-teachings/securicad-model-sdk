@@ -1,0 +1,65 @@
+{
+  "name": "unnamed",
+  "meta": {
+    "langId": "null",
+    "langVersion": "0.0.0"
+  },
+  "objects": [
+    {
+      "meta": {},
+      "id": 1,
+      "name": "ecu",
+      "asset_type": "ECU",
+      "attack_steps": [],
+      "defenses": []
+    },
+    {
+      "meta": {},
+      "id": 2,
+      "name": "ecu",
+      "asset_type": "ECU",
+      "attack_steps": [],
+      "defenses": []
+    },
+    {
+      "meta": {},
+      "id": 4,
+      "name": "ecu",
+      "asset_type": "ECU",
+      "attack_steps": [],
+      "defenses": []
+    }
+  ],
+  "associations": [],
+  "views": [
+    {
+      "meta": {},
+      "id": 5,
+      "name": "default",
+      "items": [
+        {
+          "meta": {},
+          "id": 3455436,
+          "name": "g",
+          "items": [
+            {
+              "meta": {},
+              "id": 6,
+              "name": "g",
+              "items": [],
+              "x": 0,
+              "y": 0,
+              "icon": "?",
+              "type": "group"
+            }
+          ],
+          "x": 0,
+          "y": 0,
+          "icon": "?",
+          "type": "group"
+        }
+      ]
+    }
+  ],
+  "icons": []
+}

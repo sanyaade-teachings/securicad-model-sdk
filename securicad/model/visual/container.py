@@ -50,7 +50,6 @@ class Container(Base):
         return self._id
 
     def _add_group(self, group: Group) -> Group:
-        self._view._model._update_counter(group.id)
         self._groups[group.id] = group
         return group
 
@@ -103,6 +102,7 @@ class Container(Base):
     def _delete_group(self, id: int) -> bool:
         if id in self._groups:
             del self._groups[id]
+            self._view._model._update_counter(id)
             return True
         else:
             return any(group._delete_group(id) for group in self._groups.values())

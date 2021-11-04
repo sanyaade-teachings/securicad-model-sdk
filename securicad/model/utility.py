@@ -28,6 +28,12 @@ def named_id_type(type_: type[T], subject: int | T) -> str:
     return str(subject)
 
 
+def id_pad(value: int) -> int:
+    if value < 10 ** 9:
+        value += 10 ** 9
+    return value
+
+
 def get_nested_attribute(obj: Any, attribute: str) -> Any:
     for attr in attribute.split("."):
         obj = getattr(obj, attr)

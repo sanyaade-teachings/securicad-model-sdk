@@ -86,10 +86,30 @@ class Model(Base):
         ] = collections.defaultdict(list)
 
     def _get_id(self, id: Optional[int] = None) -> int:
-        return self._counter if id is None else id
+        """
+        Return lowest non-taken ID if `id` is not specified, otherwise return `id`.
+
+        This is done because imported group ID's can be potentially huge, using a "dumb" sequential
+        counter may yield large object ID's which is not OK with certain serializers, which may
+        require small ID's.
+        """
+        if id is not None:
+            return id
+        group_ids = {
+            group.id for view in self._views.values() for group in view.groups()
+        }
+        while (  # id's are shared between objects, views, and groups
+            self._counter in self._objects
+            or self._counter in self._views
+            or self._counter in group_ids
+        ):
+            self._counter += 1
+        id = self._counter
+        self._counter + 1
+        return id
 
     def _update_counter(self, id: int) -> None:
-        self._counter = max(id + 1, self._counter)
+        self._counter = min(id, self._counter)
 
     def _add_error(self, obj: Object, error: str):
         self._multiplicity_errors[obj].append(error)
@@ -142,7 +162,6 @@ class Model(Base):
     # Object
 
     def _add_object(self, obj: Object) -> None:
-        self._update_counter(obj.id)
         self._objects[obj.id] = obj
         self._validator.validate_multiplicity(obj)
 
@@ -183,6 +202,7 @@ class Model(Base):
         if not self.has_object(id):
             raise MissingObjectException(id)
         obj = self._objects[id]
+        self._update_counter(obj.id)
 
         for field in obj._associations.values():
             for field_target in set(field.targets):  # copy set
@@ -336,7 +356,6 @@ class Model(Base):
     # View
 
     def _add_view(self, view: View) -> None:
-        self._update_counter(view.id)
         self._views[view.id] = view
 
     def create_view(self, name: str, *, id: Optional[int] = None) -> View:
@@ -358,4 +377,5 @@ class Model(Base):
     def _delete_view(self, id: int) -> None:
         if id not in self._views:
             raise MissingViewException(id)
+        self._update_counter(id)
         del self._views[id]

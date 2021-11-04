@@ -23,7 +23,7 @@ def test_model6(model: Model, model6_json: dict[str, Any]):
     model.meta["mid"] = model6_json["mid"]
     computer = model.create_object("Computer")
     computer.attack_step("access").meta["consequence"] = 5
-    computer.attack_step("enter").ttc = TtcFunction(TtcDistribution.EXPONENTIAL, [1.2])
+    computer.attack_step("enter").ttc = TtcFunction(TtcDistribution.EXPONENTIAL, [2])
     network = model.create_object("Network")
     attacker = model.create_attacker()
     computer.field("networks").connect(network.field("computers"))

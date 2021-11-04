@@ -24,7 +24,6 @@ from securicad.model import Model, json_serializer
 
 def test_deserialize_model2(model2_json: dict[str, Any], vehiclelang: Lang):
     model = json_serializer.deserialize_model(model2_json, lang=vehiclelang)
-    assert model._counter == 3
     assert len(model.objects()) == 2
     assert model.object(1).asset_type == "ECU"
     assert not model.validate()

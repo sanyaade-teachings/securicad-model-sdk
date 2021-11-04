@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import json
 import random
-from typing import TYPE_CHECKING, Any, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional
 
 from securicad.langspec import AttackStepType, TtcDistribution, TtcFunction
 
@@ -34,6 +34,17 @@ if TYPE_CHECKING:  # pragma: no cover
     from .visual.group import Group
     from .visual.viewobject import ViewObject
 
+PARAMETERS: dict[TtcDistribution, Callable[[list[float]], list[float]]] = {
+    TtcDistribution.EXPONENTIAL: lambda parameters: [1 / parameters[0]],
+    TtcDistribution.TRUNCATED_NORMAL: lambda parameters: [parameters[1], parameters[0]],
+    TtcDistribution.GAMMA: lambda parameters: [parameters[0], parameters[1]],
+    TtcDistribution.LOG_NORMAL: lambda parameters: [parameters[1], parameters[0]],
+    TtcDistribution.PARETO: lambda parameters: [parameters[1], parameters[0]],
+    TtcDistribution.BINOMIAL: lambda parameters: [parameters[0], parameters[1]],
+    TtcDistribution.BERNOULLI: lambda parameters: [parameters[0]],
+    TtcDistribution.INFINITY: lambda parameters: [],
+}
+
 
 def serialize_attack_step(attack_step: AttackStep):
     data = {
@@ -46,7 +57,12 @@ def serialize_attack_step(attack_step: AttackStep):
         assert isinstance(attack_step.ttc, TtcFunction)
         data["distribution"] = ",".join(
             [attack_step.ttc.distribution.value]
-            + [str(parameter) for parameter in attack_step.ttc.arguments]
+            + [
+                str(parameter)
+                for parameter in PARAMETERS[attack_step.ttc.distribution](
+                    attack_step.ttc.arguments
+                )
+            ]
         )
     else:
         data["distribution"] = None
@@ -66,7 +82,10 @@ def serialize_link(model: Model, association: Association) -> str | None:
 
 
 def serialize_nodes(nodes: Iterable[ViewObject | Group]):
-    return {str(node.id): {"x": int(node.x), "y": int(node.y)} for node in nodes}
+    return {
+        str(utility.id_pad(node.id)): {"x": int(node.x), "y": int(node.y)}
+        for node in nodes
+    }
 
 
 def serialize_model(model: Model, *, sort: bool = False) -> dict[str, Any]:
@@ -89,7 +108,7 @@ def serialize_model(model: Model, *, sort: bool = False) -> dict[str, Any]:
         },
         "tags": model.meta.get("tags", {}),
         "objects": {
-            str(obj.id): {
+            str(utility.id_pad(obj.id)): {
                 "name": obj.name,
                 "metaconcept": obj.asset_type,
                 "eid": obj.id,
@@ -113,8 +132,8 @@ def serialize_model(model: Model, *, sort: bool = False) -> dict[str, Any]:
         "associations": sort_dict_list(
             [
                 {  # in ES the id1.type2 is connected to id2.type1
-                    "id1": str(association.source_object.id),
-                    "id2": str(association.target_object.id),
+                    "id1": str(utility.id_pad(association.source_object.id)),
+                    "id2": str(utility.id_pad(association.target_object.id)),
                     "link": serialize_link(model, association),
                     "type2": association.source_field,
                     "type1": association.target_field,
@@ -123,7 +142,7 @@ def serialize_model(model: Model, *, sort: bool = False) -> dict[str, Any]:
             ]
         ),
         "groups": {
-            str(group.id): {
+            str(utility.id_pad(group.id)): {
                 "name": group.name,
                 "description": group.meta.get("description", ""),
                 "icon": group.icon,
@@ -215,7 +234,9 @@ def deserialize_model(
                     name, *parameters = attack_step_data["distribution"].split(",")
                     attack_step.ttc = TtcFunction(
                         TtcDistribution(name),
-                        [float(parameter) for parameter in parameters],
+                        PARAMETERS[TtcDistribution(name)](
+                            [float(parameter) for parameter in parameters]
+                        ),
                     )
 
             for defense_data in object_data["defenses"]:

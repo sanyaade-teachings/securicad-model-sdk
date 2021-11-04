@@ -33,7 +33,7 @@ def securilang() -> Lang:
     return Lang(Path(__file__).parent.joinpath("com.foreseeti.securilang-2.1.9.mar"))
 
 
-for name in ["model1", "model2", "model3", "model4", "model5", "model6"]:
+for name in ["model1", "model2", "model3", "model4", "model5", "model6", "model7"]:
     vars()[f"{name}_json"] = pytest.fixture(scope="session")(
         lambda name=name: json.loads(Path(__file__).parent.joinpath(f"{name}.json").read_text())  # type: ignore
     )
