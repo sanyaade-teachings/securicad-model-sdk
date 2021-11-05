@@ -8,7 +8,9 @@ attrs==21.2.0
     # via jsonschema
 future-fstrings==1.2.0
     # via pyecore
-jsonschema==4.1.2
+importlib-resources==5.4.0
+    # via jsonschema
+jsonschema==4.2.0
     # via securicad-model (setup.cfg)
 lxml==4.6.4
     # via pyecore
@@ -20,3 +22,5 @@ pyrsistent==0.18.0
     # via jsonschema
 restrictedpython==5.1
     # via pyecore
+zipp==3.6.0
+    # via importlib-resources

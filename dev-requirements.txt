@@ -42,6 +42,8 @@ importlib-metadata==4.8.1
     # via
     #   keyring
     #   twine
+importlib-resources==5.4.0
+    # via jsonschema
 iniconfig==1.1.1
     # via pytest
 isort==5.10.0
@@ -54,7 +56,7 @@ jeepney==0.7.1
     #   secretstorage
 jinja2==3.0.2
     # via pyecoregen
-jsonschema==4.1.2
+jsonschema==4.2.0
     # via securicad-model (setup.cfg)
 keyring==23.2.1
     # via twine
@@ -91,7 +93,7 @@ platformdirs==2.4.0
     #   pylint
 pluggy==1.0.0
     # via pytest
-py==1.10.0
+py==1.11.0
     # via pytest
 pycodestyle==2.8.0
     # via autopep8
@@ -146,7 +148,7 @@ tomli==1.2.2
     #   pep517
 tqdm==4.62.3
     # via twine
-twine==3.4.2
+twine==3.5.0
     # via securicad-model (setup.cfg)
 types-jsonschema==3.2.1
     # via securicad-model (setup.cfg)
@@ -163,7 +165,9 @@ webencodings==0.5.1
 wrapt==1.13.3
     # via astroid
 zipp==3.6.0
-    # via importlib-metadata
+    # via
+    #   importlib-metadata
+    #   importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
