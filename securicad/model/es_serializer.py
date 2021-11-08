@@ -92,6 +92,17 @@ def serialize_model(model: Model, *, sort: bool = False) -> dict[str, Any]:
     def sort_dict_list(associations: list[dict[str, Any]]) -> list[dict[str, Any]]:
         return sorted(associations, key=json.dumps) if sort else associations
 
+    def get_metadata() -> dict[str, str]:
+        meta = {
+            "scadVersion": "1.0.0",
+            "info": "Created in securiCAD model SDK",
+            "langVersion": model.meta["langVersion"],
+            "langID": model.meta["langId"],
+        }
+        if model.meta["langId"] != "com.foreseeti.securilang":
+            meta["malVersion"] = "0.1.0-SNAPSHOT"
+        return meta
+
     meta_validator.validate_model(model)
     return {
         "formatversion": 1,
@@ -100,12 +111,7 @@ def serialize_model(model: Model, *, sort: bool = False) -> dict[str, Any]:
         "samples": model.meta.get("samples", 1000),
         "threshold": model.meta.get("warningThreshold", 100),
         "default": {},
-        "metadata": {
-            "scadVersion": "1.0.0",
-            "isMAL": model.meta["langId"] != "com.foreseeti.securilang",
-            "langVersion": model.meta["langVersion"],
-            "langID": model.meta["langId"],
-        },
+        "metadata": get_metadata(),
         "tags": model.meta.get("tags", {}),
         "objects": {
             str(utility.id_pad(obj.id)): {
