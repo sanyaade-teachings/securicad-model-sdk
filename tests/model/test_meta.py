@@ -75,6 +75,50 @@ def test_group(
         serializer(model)
 
 
+def test_group_no_color_es(model: Model, group: Group) -> None:
+    assert "color" not in group.meta
+
+    es_json = es_serializer.serialize_model(model)
+    assert es_json["groups"][str(group.id + 1000000000)]["color"] == ""
+    model2 = es_serializer.deserialize_model(es_json)
+    group2 = model2.views()[0].groups()[0]
+    assert group2.id == group.id + 1000000000
+    assert "color" not in group2.meta
+
+
+def test_group_color_es(model: Model, group: Group) -> None:
+    group.meta["color"] = "#C0FFEE"
+
+    es_json = es_serializer.serialize_model(model)
+    assert es_json["groups"][str(group.id + 1000000000)]["color"] == "#C0FFEE"
+    model2 = es_serializer.deserialize_model(es_json)
+    group2 = model2.views()[0].groups()[0]
+    assert group2.id == group.id + 1000000000
+    assert group2.meta["color"] == "#C0FFEE"
+
+
+def test_group_no_color_scad(model: Model, group: Group) -> None:
+    assert "color" not in group.meta
+
+    scad_bytes = BytesIO()
+    scad_serializer.serialize_model(model, scad_bytes)
+    model2 = scad_serializer.deserialize_model(scad_bytes)
+    group2 = model2.views()[0].groups()[0]
+    assert group2.id == group.id + 1000000000
+    assert "color" not in group2.meta
+
+
+def test_group_color_scad(model: Model, group: Group) -> None:
+    group.meta["color"] = "#C0FFEE"
+
+    scad_bytes = BytesIO()
+    scad_serializer.serialize_model(model, scad_bytes)
+    model2 = scad_serializer.deserialize_model(scad_bytes)
+    group2 = model2.views()[0].groups()[0]
+    assert group2.id == group.id + 1000000000
+    assert group2.meta["color"] == "#C0FFEE"
+
+
 @pytest.mark.parametrize("serializer", serializers, ids=["scad", "es"])
 @pytest.mark.parametrize(
     "key,value",

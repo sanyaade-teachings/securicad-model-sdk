@@ -39,8 +39,8 @@ for name in ["model1", "model2", "model3", "model4", "model5", "model6", "model7
     )
 
 
-for name in ["simple", "text", "model"]:
-    vars()[f"{name}_scad"] = pytest.fixture(scope="session")(
+for name in ["simple", "text", "model", "defense-description"]:
+    vars()[f"{name.replace('-', '_')}_scad"] = pytest.fixture(scope="session")(
         lambda name=name: Path(__file__).parent.joinpath(f"{name}.sCAD").read_bytes()  # type: ignore
     )
 

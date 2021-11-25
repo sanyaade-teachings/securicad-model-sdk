@@ -99,8 +99,8 @@ class Lang:
             meta=asset["meta"],
             category=category_,
             is_abstract=asset["isAbstract"],
-            svg_icon=self._reader.svg_icons.get(asset["name"]),
-            png_icon=self._reader.png_icons.get(asset["name"]),
+            _svg_icon=self._reader.svg_icons.get(asset["name"]),
+            _png_icon=self._reader.png_icons.get(asset["name"]),
         )
         category_.assets[asset_.name] = asset_
         for variable in asset["variables"]:

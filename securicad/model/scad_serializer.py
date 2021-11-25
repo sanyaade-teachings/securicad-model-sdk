@@ -242,7 +242,9 @@ def deserialize_model(
                 )  # only probability, or fixed
                 defense = obj.defense(defense_lookup(xmi_attribute.metaConcept))
                 defense.probability = xmi_distribution.parameters[0].value
-            elif (xmi_distribution := xmi_attribute.localTtcDistribution) is not None:
+                continue
+
+            if (xmi_distribution := xmi_attribute.localTtcDistribution) is not None:
                 attack_step = obj.attack_step(attack_lookup(xmi_attribute.metaConcept))
                 attack_step.ttc = TtcFunction(
                     TtcDistribution(xmi_distribution.type),
@@ -253,6 +255,7 @@ def deserialize_model(
                         }
                     ),
                 )
+
             # xmi_attribute can be without any distribution, e.g. when only setting consequence
             if (
                 not is_default_attribute(xmi_attribute, "consequence")
@@ -308,7 +311,8 @@ def deserialize_model(
             group = container.create_group(
                 xmi_object_group.name, xmi_group_layout.icon, x, y, id=abs(id)
             )
-            group.meta["color"] = xmi_group_layout.color
+            if xmi_group_layout.color:
+                group.meta["color"] = xmi_group_layout.color
             group.meta["expand"] = xmi_object_group.expand
             if not is_default_attribute(xmi_object_group, "attributesJsonString"):
                 group.meta["tags"] = json.loads(xmi_object_group.attributesJsonString)

@@ -46,6 +46,8 @@ class Validator:
     def validate_icon(self, name: str) -> None:
         if not self.lang or not self.validate_icons:
             return
+        if name == "Attacker":
+            return
         in_model = name in self.model._icons
         in_lang = name in self.lang.assets and (
             self.lang.assets[name].png_icon or self.lang.assets[name].svg_icon

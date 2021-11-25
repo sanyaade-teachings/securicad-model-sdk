@@ -16,6 +16,8 @@ from __future__ import annotations
 from io import BytesIO
 from typing import TYPE_CHECKING, Any
 
+import pytest
+
 from securicad.langspec import Lang
 from securicad.model import Model, json_serializer, scad_serializer
 
@@ -71,3 +73,11 @@ def test_model_loop(model_scad: bytes):
     assert json_serializer.serialize_model(
         model, sort=True
     ) == json_serializer.serialize_model(looped, sort=True)
+
+
+@pytest.mark.vehiclelang
+def test_defense_description(
+    defense_description_scad: bytes, vehiclelang: Lang
+) -> None:
+    scad_bytes = BytesIO(defense_description_scad)
+    scad_serializer.deserialize_model(scad_bytes, lang=vehiclelang)

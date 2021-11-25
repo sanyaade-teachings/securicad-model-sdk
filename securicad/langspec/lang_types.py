@@ -45,8 +45,8 @@ class Asset:
     _attack_steps: Dict[str, AttackStep] = field(
         default_factory=dict, init=False, repr=False
     )
-    svg_icon: Optional[bytes]
-    png_icon: Optional[bytes]
+    _svg_icon: Optional[bytes]
+    _png_icon: Optional[bytes]
 
     @property
     def fields(self) -> Dict[str, Field]:
@@ -65,6 +65,22 @@ class Asset:
         if not self.super_asset:
             return self._attack_steps
         return {**self.super_asset.attack_steps, **self._attack_steps}
+
+    @property
+    def svg_icon(self) -> Optional[bytes]:
+        if self._svg_icon:
+            return self._svg_icon
+        if not self.super_asset:
+            return None
+        return self.super_asset.svg_icon
+
+    @property
+    def png_icon(self) -> Optional[bytes]:
+        if self._png_icon:
+            return self._png_icon
+        if not self.super_asset:
+            return None
+        return self.super_asset.png_icon
 
     def is_sub_type_of(self, other: Asset) -> bool:
         if self is other:

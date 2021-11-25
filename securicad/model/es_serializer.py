@@ -152,7 +152,7 @@ def serialize_model(model: Model, *, sort: bool = False) -> dict[str, Any]:
                 "name": group.name,
                 "description": group.meta.get("description", ""),
                 "icon": group.icon,
-                "color": group.meta.get("color", "#fff"),
+                "color": group.meta.get("color", ""),
                 "expand": group.meta.get("expand", False),
                 "tags": group.meta.get("tags", {}),
                 "objects": serialize_nodes(
@@ -195,9 +195,11 @@ def deserialize_model(
         **model.meta,
         "samples": data["samples"],
         "warningThreshold": data["threshold"],
-        "mid": data["mid"],
         "tags": data["tags"],
     }
+
+    if "mid" in data:
+        model.meta["mid"] = data["mid"]
 
     id_exported_id: dict[str, int] = {}
     for object_id, object_data in data["objects"].items():
@@ -232,9 +234,9 @@ def deserialize_model(
             for attack_step_data in object_data["attacksteps"]:
                 attack_step = obj.attack_step(attack_lookup(attack_step_data["name"]))
                 attack_step.meta = {
-                    "costUpperLimit": attack_step_data["uppercost"] or 0,
-                    "costLowerLimit": attack_step_data["lowercost"] or 0,
-                    "consequence": attack_step_data["consequence"] or 0,
+                    "costUpperLimit": attack_step_data.get("uppercost") or 0,
+                    "costLowerLimit": attack_step_data.get("lowercost") or 0,
+                    "consequence": attack_step_data.get("consequence") or 0,
                 }
                 if attack_step_data["distribution"] is not None:
                     name, *parameters = attack_step_data["distribution"].split(",")
@@ -275,10 +277,11 @@ def deserialize_model(
         )
         group.meta = {
             "description": group_data["description"],
-            "color": group_data["color"],
             "expand": group_data["expand"],
             "tags": group_data["tags"],
         }
+        if group_data["color"]:
+            group.meta["color"] = group_data["color"]
         for object_id, node_data in group_data["objects"].items():
             if object_id in id_exported_id:
                 group.add_object(

@@ -7,9 +7,10 @@
   "default": {},
   "metadata": {
     "scadVersion": "1.0.0",
-    "isMAL": true,
+    "info": "Created in securiCAD model SDK",
     "langVersion": "0.0.0",
-    "langID": "null"
+    "langID": "null",
+    "malVersion": "0.1.0-SNAPSHOT"
   },
   "tags": {},
   "objects": {
@@ -74,7 +75,7 @@
       "name": "Objects",
       "description": "",
       "icon": "Icon",
-      "color": "#fff",
+      "color": "",
       "expand": false,
       "tags": {},
       "objects": {

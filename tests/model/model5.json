@@ -26,15 +26,7 @@
       "id": 2,
       "name": "Client",
       "asset_type": "Client",
-      "attack_steps": [
-        {
-          "meta": {
-            "description": ""
-          },
-          "name": "patched",
-          "ttc": null
-        }
-      ],
+      "attack_steps": [],
       "defenses": [
         {
           "meta": {},

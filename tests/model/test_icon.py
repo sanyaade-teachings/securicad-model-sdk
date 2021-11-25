@@ -29,6 +29,11 @@ def test_create_invalid(view: View):
         view.create_group("group", "?")
 
 
+@pytest.mark.vehiclelang
+def test_create_attacker(view: View):
+    view.create_group("group", "Attacker")
+
+
 def test_create_any(vehiclelang: Lang):
     model = Model(lang=vehiclelang, validate_icons=False)
     view = model.create_view("view")
