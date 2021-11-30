@@ -10,17 +10,17 @@ future-fstrings==1.2.0
     # via pyecore
 importlib-resources==5.4.0
     # via jsonschema
-jsonschema==4.2.0
+jsonschema==4.2.1
     # via securicad-model (setup.cfg)
 lxml==4.6.4
     # via pyecore
 ordered-set==4.0.2
     # via pyecore
-pyecore==0.12.1
+pyecore==0.12.2
     # via securicad-model (setup.cfg)
 pyrsistent==0.18.0
     # via jsonschema
-restrictedpython==5.1
+restrictedpython==5.2
     # via pyecore
 zipp==3.6.0
     # via importlib-resources

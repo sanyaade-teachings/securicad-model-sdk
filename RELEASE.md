@@ -15,7 +15,7 @@ To make a release, perform the following steps:
 The release commit shall contain the following changes:
 
 - Updated version number in `securicad/model/__init__.py`
-- Updated dependencies in `dev-requirements.txt`
+- Updated dependencies in `requirements.txt` and `dev-requirements.txt`
 
 Test that everything still works with the new dependencies.
 
@@ -27,7 +27,7 @@ The commit message shall be `Release <version>`, e.g. `Release 0.0.2`.
 $ git checkout -b max/release
 $ sed -i 's/^__version__ = "[^"]*"$/__version__ = "0.0.2"/' securicad/model/__init__.py
 $ ./tools/scripts/create_requirements.sh
-$ git add securicad/model/__init__.py dev-requirements.txt
+$ git add securicad/model/__init__.py requirements.txt dev-requirements.txt
 $ git commit -m "Release 0.0.2"
 $ git push origin max/release
 ```
