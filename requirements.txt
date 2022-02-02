@@ -4,23 +4,23 @@
 #
 #    ./tools/scripts/create_requirements.sh
 #
-attrs==21.2.0
+attrs==21.4.0
     # via jsonschema
 future-fstrings==1.2.0
     # via pyecore
 importlib-resources==5.4.0
     # via jsonschema
-jsonschema==4.2.1
+jsonschema==4.4.0
     # via securicad-model (setup.cfg)
-lxml==4.6.4
+lxml==4.7.1
     # via pyecore
-ordered-set==4.0.2
+ordered-set==4.1.0
     # via pyecore
 pyecore==0.12.2
     # via securicad-model (setup.cfg)
-pyrsistent==0.18.0
+pyrsistent==0.18.1
     # via jsonschema
 restrictedpython==5.2
     # via pyecore
-zipp==3.6.0
+zipp==3.7.0
     # via importlib-resources
