@@ -115,7 +115,7 @@ pyparsing==3.0.7
     # via packaging
 pyrsistent==0.18.1
     # via jsonschema
-pytest==6.2.5
+pytest==7.0.0
     # via securicad-model (setup.cfg)
 readme-renderer==32.0
     # via twine
@@ -137,16 +137,16 @@ toml==0.10.2
     # via
     #   autopep8
     #   pylint
-    #   pytest
 tomli==2.0.0
     # via
     #   black
     #   build
     #   mypy
     #   pep517
+    #   pytest
 tqdm==4.62.3
     # via twine
-twine==3.7.1
+twine==3.8.0
     # via securicad-model (setup.cfg)
 types-jsonschema==4.4.1
     # via securicad-model (setup.cfg)
@@ -157,7 +157,9 @@ typing-extensions==4.0.1
     #   mypy
     #   pylint
 urllib3==1.26.8
-    # via requests
+    # via
+    #   requests
+    #   twine
 webencodings==0.5.1
     # via bleach
 wrapt==1.13.3
