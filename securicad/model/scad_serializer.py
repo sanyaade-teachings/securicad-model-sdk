@@ -341,11 +341,19 @@ def deserialize_model(
 
 
 def serialize_attack_step(attack_step: AttackStep) -> ObjectModelPackage.XMIAttribute:
+    costUpperLimit = attack_step.meta.get("costUpperLimit", None)
+    if costUpperLimit is not None:
+        costUpperLimit = float(costUpperLimit)
+
+    costLowerLimit = attack_step.meta.get("costLowerLimit", None)
+    if costLowerLimit is not None:
+        costLowerLimit = float(costLowerLimit)
+
     xmi_attribute = ObjectModelPackage.XMIAttribute(
         metaConcept=utility.uc_first(attack_step.name),
         consequence=attack_step.meta.get("consequence", None),
-        costUpperLimit=attack_step.meta.get("costUpperLimit", None),
-        costLowerLimit=attack_step.meta.get("costLowerLimit", None),
+        costUpperLimit=costUpperLimit,
+        costLowerLimit=costLowerLimit,
     )
     xmi_attribute.description = attack_step.meta.get("description", None)
     if attack_step.ttc is not None:
@@ -353,7 +361,9 @@ def serialize_attack_step(attack_step: AttackStep) -> ObjectModelPackage.XMIAttr
         xmi_attribute.localTtcDistribution = ObjectModelPackage.XMIDistribution(
             type=attack_step.ttc.distribution.value,
             parameters=[
-                ObjectModelPackage.XMIDistributionParameter(name=name, value=value)
+                ObjectModelPackage.XMIDistributionParameter(
+                    name=name, value=float(value)
+                )
                 for name, value in PARAMETERS_TO_SCAD[attack_step.ttc.distribution](
                     attack_step.ttc.arguments
                 ).items()
@@ -380,14 +390,21 @@ def serialize_defense(defense: Defense) -> ObjectModelPackage.XMIAttribute:
 
 
 def serialize_object(obj: Object) -> ObjectModelPackage.XMIObject:
+    capex = obj.meta.get("capex", None)
+    if capex is not None:
+        capex = float(capex)
+    opex = obj.meta.get("opex", None)
+    if opex is not None:
+        opex = float(opex)
+
     xmi_object = ObjectModelPackage.XMIObject(
         id=str(utility.id_pad(obj.id)),
         exportedId=obj.id,
         metaConcept=obj.asset_type,
         name=obj.name if obj.name else obj.asset_type,
         attributesJsonString=json.dumps(obj.meta.get("tags", {})),
-        capex=obj.meta.get("capex", None),
-        opex=obj.meta.get("opex", None),
+        capex=capex,
+        opex=opex,
     )
     xmi_object.description = obj.meta.get("description", None)
 

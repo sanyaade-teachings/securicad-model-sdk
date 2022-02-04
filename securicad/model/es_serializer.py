@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import random
+from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional
 
 from securicad.langspec import AttackStepType, TtcDistribution, TtcFunction
@@ -58,7 +59,7 @@ def serialize_attack_step(attack_step: AttackStep):
         data["distribution"] = ",".join(
             [attack_step.ttc.distribution.value]
             + [
-                str(parameter)
+                format(Decimal(str(parameter)), "f")
                 for parameter in PARAMETERS[attack_step.ttc.distribution](
                     attack_step.ttc.arguments
                 )
