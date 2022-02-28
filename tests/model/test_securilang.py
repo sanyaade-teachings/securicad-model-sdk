@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from securicad.model import Model, scad_serializer
+from securicad.model import Model, es_serializer, scad_serializer
 from securicad.model.exceptions import LangException
 
 if TYPE_CHECKING:
@@ -339,3 +339,67 @@ def test_text_scad(text_scad: bytes, securilang: Lang):
 def test_model_scad(model_scad: bytes, securilang: Lang):
     # model.sCAD changes every attribute once somewhere
     scad_serializer.deserialize_model(BytesIO(model_scad), lang=securilang)
+
+
+def test_assoc_order(securilang: Lang):
+    model_json = {
+        "formatversion": 1,
+        "mid": "8131568409253025467596105",
+        "name": "assoc-order",
+        "samples": 1000,
+        "threshold": 100,
+        "default": {},
+        "metadata": {
+            "scadVersion": "1.0.0",
+            "info": "Created in securiCAD model SDK",
+            "langVersion": "2.1.9",
+            "langID": "com.foreseeti.securilang",
+        },
+        "tags": {},
+        "objects": {
+            "1000000001": {
+                "name": "",
+                "metaconcept": "Protocol",
+                "eid": 1,
+                "tags": {},
+                "attacksteps": [],
+                "defenses": [{"name": "Encrypted", "probability": 1.0}],
+            },
+            "1000000002": {
+                "name": "",
+                "metaconcept": "Dataflow",
+                "eid": 2,
+                "tags": {},
+                "attacksteps": [],
+                "defenses": [],
+            },
+            "1000000003": {
+                "name": "",
+                "metaconcept": "Keystore",
+                "eid": 3,
+                "tags": {},
+                "attacksteps": [],
+                "defenses": [],
+            },
+        },
+        "associations": [
+            {
+                "id1": "1000000002",
+                "id2": "1000000003",
+                "link": "Authentication",
+                "type2": "keystore",
+                "type1": "encryptedDataflows",
+            },
+            {
+                "id1": "1000000001",
+                "id2": "1000000002",
+                "link": "ProtocolStatus",
+                "type2": "dataflows",
+                "type1": "protocol",
+            },
+        ],
+        "groups": {},
+        "views": [],
+    }
+
+    es_serializer.deserialize_model(model_json, lang=securilang)

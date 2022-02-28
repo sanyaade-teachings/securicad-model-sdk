@@ -23,6 +23,7 @@ from securicad.langspec import AttackStepType, TtcDistribution, TtcFunction
 
 from . import utility
 from .attacker import Attacker
+from .exceptions import LangException
 from .meta import meta_validator
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -107,7 +108,7 @@ def serialize_model(model: Model, *, sort: bool = False) -> dict[str, Any]:
     meta_validator.validate_model(model)
     return {
         "formatversion": 1,
-        "mid": model.meta.get("mid", str(random.randint(10 ** 9, 10 ** 25 - 1))),
+        "mid": model.meta.get("mid", str(random.randint(10**9, 10**25 - 1))),
         "name": model.name,
         "samples": model.meta.get("samples", 1000),
         "threshold": model.meta.get("warningThreshold", 100),
@@ -252,20 +253,43 @@ def deserialize_model(
                 defense = obj.defense(defense_lookup(defense_data["name"]))
                 defense.probability = defense_data["probability"]
 
-    for association_data in data["associations"]:
-        # in ES the id1.type2 is connected to id2.type1
-        source_object = model.object(id_exported_id[association_data["id1"]])
-        target_object = model.object(id_exported_id[association_data["id2"]])
-        if isinstance(source_object, Attacker):
-            step = association_data["type1"].split(".")[0]
-            source_object.connect(target_object.attack_step(step))
-        elif isinstance(target_object, Attacker):
-            step = association_data["type2"].split(".")[0]
-            target_object.connect(source_object.attack_step(step))
-        else:
-            source_object.field(association_data["type2"]).connect(
-                target_object.field(association_data["type1"])
-            )
+    # FIXME: Clean this up when securilang is retired
+    queue = list(data["associations"])
+    assoc_was_added = True
+    while queue and assoc_was_added:
+        last_exc = None
+        assoc_was_added = False
+        assocs_added = []
+
+        # first try to create any remaining to-be-created-assoc
+        for que_obj in queue:
+            try:
+                # in ES the id1.type2 is connected to id2.type1
+                source_object = model.object(id_exported_id[que_obj["id1"]])
+                target_object = model.object(id_exported_id[que_obj["id2"]])
+                if isinstance(source_object, Attacker):
+                    step = que_obj["type1"].split(".")[0]
+                    source_object.connect(target_object.attack_step(step))
+                elif isinstance(target_object, Attacker):
+                    step = que_obj["type2"].split(".")[0]
+                    target_object.connect(source_object.attack_step(step))
+                else:
+                    source_object.field(que_obj["type2"]).connect(
+                        target_object.field(que_obj["type1"])
+                    )
+                assoc_was_added = True
+                assocs_added.append(que_obj)
+            except LangException as ex:
+                last_exc = ex  # try next assoc
+
+        # then raise if we can't add any
+        if not assoc_was_added:
+            # no new association added, raise last exc which probably is relevant
+            raise last_exc
+
+        # last remove the created ones from the attempt queue
+        for assoc in assocs_added:
+            queue.remove(assoc)
 
     def create_group(container: Container, group_id: int, x: float, y: float):
         group_data = data["groups"][str(group_id)]

@@ -38,6 +38,7 @@ from securicad.langspec import (
 )
 
 from .attacker import Attacker
+from .exceptions import LangException
 from .visual.container import Container
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -258,18 +259,41 @@ def deserialize_model(
         view.meta = v_data["meta"]
         deserialize_items(model, view, v_data["items"])
 
-    for a_data in data["associations"]:
-        source_object = model.object(a_data["source_object_id"])
-        target_object = model.object(a_data["target_object_id"])
-        if isinstance(source_object, Attacker):
-            step = a_data["target_field"].split(".")[0]
-            source_object.connect(target_object.attack_step(step))
-        elif isinstance(target_object, Attacker):
-            step = a_data["source_field"].split(".")[0]
-            target_object.connect(source_object.attack_step(step))
-        else:
-            source_object.field(a_data["source_field"]).connect(
-                target_object.field(a_data["target_field"])
-            )
+    # FIXME: Clean this up when securilang is retired
+    queue = list(data["associations"])
+    assoc_was_added = True
+    while queue and assoc_was_added:
+        last_exc = None
+        assoc_was_added = False
+        assocs_added = []
+
+        # first try to create any remaining to-be-created-assoc
+        for que_obj in queue:
+            try:
+                source_object = model.object(que_obj["source_object_id"])
+                target_object = model.object(que_obj["target_object_id"])
+                if isinstance(source_object, Attacker):
+                    step = que_obj["target_field"].split(".")[0]
+                    source_object.connect(target_object.attack_step(step))
+                elif isinstance(target_object, Attacker):
+                    step = que_obj["source_field"].split(".")[0]
+                    target_object.connect(source_object.attack_step(step))
+                else:
+                    source_object.field(que_obj["source_field"]).connect(
+                        target_object.field(que_obj["target_field"])
+                    )
+                assoc_was_added = True
+                assocs_added.append(que_obj)
+            except LangException as ex:
+                last_exc = ex  # try next assoc
+
+        # then raise if we can't add any
+        if not assoc_was_added:
+            # no new association added, raise last exc which probably is relevant
+            raise last_exc
+
+        # last remove the created ones from the attempt queue
+        for assoc in assocs_added:
+            queue.remove(assoc)
 
     return model
