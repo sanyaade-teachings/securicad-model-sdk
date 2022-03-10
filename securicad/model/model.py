@@ -205,7 +205,7 @@ class Model(Base):
         self._update_counter(obj.id)
 
         for field in obj._associations.values():
-            for field_target in set(field.targets):  # copy set
+            for field_target in field.targets:
                 obj.field(field.name).disconnect(field_target.target.field.object)
 
         for view in self._views.values():
@@ -286,8 +286,8 @@ class Model(Base):
         if not self.has_object(association.target_object.id):
             raise MissingObjectException(association.target_object)
         if (
-            association.target_object
-            in association.source_object.field(association.source_field).objects()
+            association.target_object.id
+            in association.source_object.field(association.source_field)._targets
         ):
             raise DuplicateAssociationException(association)
 
@@ -302,8 +302,8 @@ class Model(Base):
         )
         source_field_target.target = target_field_target
         target_field_target.target = source_field_target
-        source_field.targets.add(source_field_target)
-        target_field.targets.add(target_field_target)
+        source_field._targets[target_field.object.id] = source_field_target
+        target_field._targets[source_field.object.id] = target_field_target
 
         self._associations.add(association)
         self._validator.validate_multiplicity(association.source_object)
@@ -332,7 +332,7 @@ class Model(Base):
             raise MissingObjectException(source_object)
         if not self.has_object(target_object.id):
             raise MissingObjectException(target_object)
-        if target_object not in source_object.field(source_field).objects():
+        if target_object.id not in source_object.field(source_field)._targets:
             raise MissingAssociationException(
                 source_object, source_field, target_object
             )
@@ -345,8 +345,8 @@ class Model(Base):
         target_field_object = source_field_target.target.field
         target_field_target = source_field_target.target
 
-        source_field_object.targets.remove(source_field_target)
-        target_field_object.targets.remove(target_field_target)
+        del source_field_object._targets[target_field_object.object.id]
+        del target_field_object._targets[source_field_object.object.id]
 
         self._associations.remove(source_field_target.association)
         self._validator.validate_multiplicity(source_object)

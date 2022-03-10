@@ -120,7 +120,7 @@ class Validator:
             return
 
         maximum = self.lang.assets[obj.asset_type].fields[field].multiplicity.max
-        if len(obj.field(field).objects()) >= maximum:
+        if len(obj.field(field)._targets) >= maximum:
             raise MultiplicityException(obj, field, maximum)
 
     def validate_multiplicity(self, obj: Object) -> None:
@@ -132,7 +132,7 @@ class Validator:
             return
 
         for name, field in self.lang.assets[obj.asset_type].fields.items():
-            count = len(obj.field(name).objects())
+            count = len(obj.field(name)._targets)
             if count < field.multiplicity.min:
                 target = "object" if field.multiplicity.min == 1 else "objects"
                 self.model._multiplicity_errors[obj].append(

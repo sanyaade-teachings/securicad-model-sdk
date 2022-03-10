@@ -42,12 +42,14 @@ class Association(Base):
 
 
 class Field:
-    def __init__(
-        self, obj: Object, name: str, targets: Optional[set[FieldTarget]] = None
-    ) -> None:
+    def __init__(self, obj: Object, name: str) -> None:
         self.object = obj
         self.name = name
-        self.targets = targets or set()
+        self._targets: dict[int, FieldTarget] = {}
+
+    @property
+    def targets(self) -> set[FieldTarget]:
+        return set(self._targets.values())
 
     def objects(self) -> list[Object]:
         return [target.target.field.object for target in self.targets]
