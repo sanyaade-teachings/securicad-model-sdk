@@ -20,6 +20,7 @@ import pytest
 
 from securicad.langspec import Lang
 from securicad.model import Model, json_serializer, scad_serializer
+from securicad.model.exceptions import InvalidLangException
 
 if TYPE_CHECKING:
     from securicad.model import Object
@@ -81,3 +82,23 @@ def test_defense_description(
 ) -> None:
     scad_bytes = BytesIO(defense_description_scad)
     scad_serializer.deserialize_model(scad_bytes, lang=vehiclelang)
+
+
+def test_wrong_lang_id(securilang: Lang, simple_wrong_id_scad: bytes) -> None:
+    with pytest.raises(
+        InvalidLangException,
+        match=r"^Unexpected language 'com\.foreseeti\.wronglang@2\.1\.9', expected 'com\.foreseeti\.securilang@2\.1\.9'$",
+    ):
+        scad_serializer.deserialize_model(
+            BytesIO(simple_wrong_id_scad), lang=securilang
+        )
+
+
+def test_wrong_lang_version(securilang: Lang, simple_wrong_version_scad: bytes) -> None:
+    with pytest.raises(
+        InvalidLangException,
+        match=r"^Unexpected language 'com\.foreseeti\.securilang@9\.9\.9', expected 'com\.foreseeti\.securilang@2\.1\.9'$",
+    ):
+        scad_serializer.deserialize_model(
+            BytesIO(simple_wrong_version_scad), lang=securilang
+        )

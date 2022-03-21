@@ -105,7 +105,7 @@ class Model(Base):
         ):
             self._counter += 1
         id = self._counter
-        self._counter + 1
+        self._counter += 1
         return id
 
     def _update_counter(self, id: int) -> None:

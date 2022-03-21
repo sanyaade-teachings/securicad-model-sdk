@@ -17,17 +17,19 @@ from typing import TYPE_CHECKING
 
 from . import utility
 from .object import Object
+from .visual.exceptions import DuplicateGroupException as DuplicateGroupException
+from .visual.exceptions import DuplicateViewException as DuplicateViewException
 from .visual.exceptions import (
-    DuplicateGroupException,
-    DuplicateViewException,
-    DuplicateViewObjectException,
-    MissingGroupException,
-    MissingViewException,
-    MissingViewObjectException,
-    VisualException,
+    DuplicateViewObjectException as DuplicateViewObjectException,
 )
+from .visual.exceptions import MissingGroupException as MissingGroupException
+from .visual.exceptions import MissingViewException as MissingViewException
+from .visual.exceptions import MissingViewObjectException as MissingViewObjectException
+from .visual.exceptions import VisualException as VisualException
 
 if TYPE_CHECKING:  # pragma: no cover
+    from securicad.langspec import Lang
+
     from .association import Association
     from .attacker import Attacker
     from .attackstep import AttackStep
@@ -97,7 +99,7 @@ class MissingAttackStepException(ModelException):
 
 
 class InvalidModelException(ModelException):
-    def __init__(self, errors) -> None:
+    def __init__(self, errors: list[str]) -> None:
         self.errors = errors
         super().__init__(f"Invalid model: {errors}")
 
@@ -107,6 +109,13 @@ class InvalidModelException(ModelException):
 
 class LangException(Exception):
     pass
+
+
+class InvalidLangException(LangException):
+    def __init__(self, lang: Lang, lang_id: str, lang_version: str) -> None:
+        expected = f"{lang.defines['id']}@{lang.defines['version']}"
+        actual = f"{lang_id}@{lang_version}"
+        super().__init__(f"Unexpected language '{actual}', expected '{expected}'")
 
 
 class InvalidAssetException(LangException):

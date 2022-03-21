@@ -20,6 +20,7 @@ from jsonschema.exceptions import ValidationError
 
 from securicad.langspec import Lang, TtcDistribution, TtcFunction
 from securicad.model import Model, json_serializer
+from securicad.model.exceptions import InvalidLangException
 
 
 def test_deserialize_model2(model2_json: dict[str, Any], vehiclelang: Lang):
@@ -101,3 +102,25 @@ def test_serialize_invalid(model: Model):
     model.create_object("").attack_step("")._ttc = False  # type: ignore
     with pytest.raises(RuntimeError):
         json_serializer.serialize_model(model)
+
+
+def test_wrong_lang_id(securilang: Lang) -> None:
+    model = Model("wrong-id", lang=securilang)
+    json_model = json_serializer.serialize_model(model)
+    json_model["meta"]["langId"] = "com.foreseeti.wronglang"
+    with pytest.raises(
+        InvalidLangException,
+        match=r"^Unexpected language 'com\.foreseeti\.wronglang@2\.1\.9', expected 'com\.foreseeti\.securilang@2\.1\.9'$",
+    ):
+        json_serializer.deserialize_model(json_model, lang=securilang)
+
+
+def test_wrong_lang_version(securilang: Lang) -> None:
+    model = Model("wrong-version", lang=securilang)
+    json_model = json_serializer.serialize_model(model)
+    json_model["meta"]["langVersion"] = "9.9.9"
+    with pytest.raises(
+        InvalidLangException,
+        match=r"^Unexpected language 'com\.foreseeti\.securilang@9\.9\.9', expected 'com\.foreseeti\.securilang@2\.1\.9'$",
+    ):
+        json_serializer.deserialize_model(json_model, lang=securilang)

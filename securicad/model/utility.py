@@ -16,6 +16,8 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, TypeVar
 
+from .exceptions import InvalidLangException
+
 if TYPE_CHECKING:  # pragma: no cover
     from securicad.langspec import AttackStepType, Lang
 
@@ -29,8 +31,8 @@ def named_id_type(type_: type[T], subject: int | T) -> str:
 
 
 def id_pad(value: int) -> int:
-    if value < 10 ** 9:
-        value += 10 ** 9
+    if value < 10**9:
+        value += 10**9
     return value
 
 
@@ -77,3 +79,10 @@ def attack_step_lookup(
         return attack_step
 
     return lookup
+
+
+def verify_lang(lang: Lang, lang_id: str, lang_version: str) -> None:
+    if lang_id != lang.defines["id"] or lang_version != lang.defines["version"]:
+        raise InvalidLangException(
+            lang=lang, lang_id=lang_id, lang_version=lang_version
+        )

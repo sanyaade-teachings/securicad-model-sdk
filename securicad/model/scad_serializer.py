@@ -180,10 +180,9 @@ def deserialize_model(
                 meta = json.load(f)
             assert meta["scadVersion"] == "1.0.0"
             if lang:
-                assert meta["langID"] == lang.defines["id"], (
-                    meta["langID"] + "," + lang.defines["id"]
+                utility.verify_lang(
+                    lang=lang, lang_id=meta["langID"], lang_version=meta["langVersion"]
                 )
-                assert meta["langVersion"] == lang.defines["version"]
 
             model = Model(
                 lang=lang,
@@ -272,12 +271,12 @@ def deserialize_model(
                 )
 
     # FIXME: Clean this up when securilang is retired
-    queue = list(eom.associations)
+    queue: list[Any] = list(eom.associations)
     assoc_was_added = True
     while queue and assoc_was_added:
-        last_exc = None
+        last_exc: Optional[LangException] = None
         assoc_was_added = False
-        assocs_added = []
+        assocs_added: list[Any] = []
 
         # first try to create any remaining to-be-created-assoc
         for que_obj in queue:
@@ -303,6 +302,7 @@ def deserialize_model(
         # then raise if we can't add any
         if not assoc_was_added:
             # no new association added, raise last exc which probably is relevant
+            assert last_exc is not None
             raise last_exc
 
         # last remove the created ones from the attempt queue

@@ -15,8 +15,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from securicad.langspec import TtcDistribution, TtcFunction
+import pytest
+
+from securicad.langspec import Lang, TtcDistribution, TtcFunction
 from securicad.model import Model, es_serializer
+from securicad.model.exceptions import InvalidLangException
 
 
 def test_model6(model: Model, model6_json: dict[str, Any]):
@@ -45,3 +48,25 @@ def test_model6_loop(model6_json: dict[str, Any]):
         )
         == model6_json
     )
+
+
+def test_wrong_lang_id(securilang: Lang) -> None:
+    model = Model("wrong-id", lang=securilang)
+    es_model = es_serializer.serialize_model(model)
+    es_model["metadata"]["langID"] = "com.foreseeti.wronglang"
+    with pytest.raises(
+        InvalidLangException,
+        match=r"^Unexpected language 'com\.foreseeti\.wronglang@2\.1\.9', expected 'com\.foreseeti\.securilang@2\.1\.9'$",
+    ):
+        es_serializer.deserialize_model(es_model, lang=securilang)
+
+
+def test_wrong_lang_version(securilang: Lang) -> None:
+    model = Model("wrong-version", lang=securilang)
+    es_model = es_serializer.serialize_model(model)
+    es_model["metadata"]["langVersion"] = "9.9.9"
+    with pytest.raises(
+        InvalidLangException,
+        match=r"^Unexpected language 'com\.foreseeti\.securilang@9\.9\.9', expected 'com\.foreseeti\.securilang@2\.1\.9'$",
+    ):
+        es_serializer.deserialize_model(es_model, lang=securilang)

@@ -185,6 +185,13 @@ def deserialize_model(
 ) -> Model:
     from .model import Model
 
+    if lang:
+        utility.verify_lang(
+            lang=lang,
+            lang_id=data["metadata"]["langID"],
+            lang_version=data["metadata"]["langVersion"],
+        )
+
     model = Model(
         data["name"] or "unnamed",
         lang=lang,
@@ -254,12 +261,12 @@ def deserialize_model(
                 defense.probability = defense_data["probability"]
 
     # FIXME: Clean this up when securilang is retired
-    queue = list(data["associations"])
+    queue: list[dict[str, Any]] = list(data["associations"])
     assoc_was_added = True
     while queue and assoc_was_added:
-        last_exc = None
+        last_exc: Optional[LangException] = None
         assoc_was_added = False
-        assocs_added = []
+        assocs_added: list[dict[str, Any]] = []
 
         # first try to create any remaining to-be-created-assoc
         for que_obj in queue:
@@ -285,6 +292,7 @@ def deserialize_model(
         # then raise if we can't add any
         if not assoc_was_added:
             # no new association added, raise last exc which probably is relevant
+            assert last_exc is not None
             raise last_exc
 
         # last remove the created ones from the attempt queue
