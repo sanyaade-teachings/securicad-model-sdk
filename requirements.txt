@@ -12,7 +12,7 @@ importlib-resources==5.4.0
     # via jsonschema
 jsonschema==4.4.0
     # via securicad-model (setup.cfg)
-lxml==4.7.1
+lxml==4.8.0
     # via pyecore
 ordered-set==4.1.0
     # via pyecore

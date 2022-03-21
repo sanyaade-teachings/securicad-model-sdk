@@ -22,15 +22,15 @@ certifi==2021.10.8
     # via requests
 cffi==1.15.0
     # via cryptography
-charset-normalizer==2.0.11
+charset-normalizer==2.0.12
     # via requests
-click==8.0.3
+click==8.0.4
     # via black
 colorama==0.4.4
     # via twine
-coverage==6.3.1
+coverage==6.3.2
     # via securicad-model (setup.cfg)
-cryptography==36.0.1
+cryptography==36.0.2
     # via secretstorage
 docutils==0.18.1
     # via readme-renderer
@@ -38,7 +38,7 @@ future-fstrings==1.2.0
     # via pyecore
 idna==3.3
     # via requests
-importlib-metadata==4.10.1
+importlib-metadata==4.11.3
     # via
     #   keyring
     #   twine
@@ -62,13 +62,13 @@ keyring==23.5.0
     # via twine
 lazy-object-proxy==1.7.1
     # via astroid
-lxml==4.7.1
+lxml==4.8.0
     # via pyecore
-markupsafe==2.0.1
+markupsafe==2.1.1
     # via jinja2
 mccabe==0.6.1
     # via pylint
-mypy==0.931
+mypy==0.941
     # via securicad-model (setup.cfg)
 mypy-extensions==0.4.3
     # via
@@ -87,7 +87,7 @@ pep517==0.12.0
     # via build
 pkginfo==1.8.2
     # via twine
-platformdirs==2.4.1
+platformdirs==2.5.1
     # via
     #   black
     #   pylint
@@ -115,9 +115,9 @@ pyparsing==3.0.7
     # via packaging
 pyrsistent==0.18.1
     # via jsonschema
-pytest==7.0.0
+pytest==7.1.1
     # via securicad-model (setup.cfg)
-readme-renderer==32.0
+readme-renderer==34.0
     # via twine
 requests==2.27.1
     # via
@@ -137,26 +137,26 @@ toml==0.10.2
     # via
     #   autopep8
     #   pylint
-tomli==2.0.0
+tomli==2.0.1
     # via
     #   black
     #   build
     #   mypy
     #   pep517
     #   pytest
-tqdm==4.62.3
+tqdm==4.63.0
     # via twine
 twine==3.8.0
     # via securicad-model (setup.cfg)
-types-jsonschema==4.4.1
+types-jsonschema==4.4.2
     # via securicad-model (setup.cfg)
-typing-extensions==4.0.1
+typing-extensions==4.1.1
     # via
     #   astroid
     #   black
     #   mypy
     #   pylint
-urllib3==1.26.8
+urllib3==1.26.9
     # via
     #   requests
     #   twine
