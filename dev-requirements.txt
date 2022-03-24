@@ -144,7 +144,7 @@ tomli==2.0.1
     #   mypy
     #   pep517
     #   pytest
-tqdm==4.63.0
+tqdm==4.63.1
     # via twine
 twine==3.8.0
     # via securicad-model (setup.cfg)
