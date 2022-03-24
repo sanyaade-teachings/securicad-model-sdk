@@ -45,6 +45,8 @@ class SecurilangValidator(Validator):
                 "nonRootApplicationHost",
             }:
                 hosts |= obj.field(field).targets
+            if obj.asset_type == "UnknownService":
+                hosts |= obj.field("host").targets
             if not hosts:
                 self.model._add_error(
                     obj, f"{obj} must be connected to exactly 1 Host."
@@ -54,9 +56,10 @@ class SecurilangValidator(Validator):
                 # Service [exposedServices] 0..* <-- NetworkExposure --> 0..1 [exposureNetwork] Network
                 host = hosts.pop().target.field.object
                 try:
-                    network = list(obj.field("exposureNetwork").targets)[
-                        0
-                    ].target.field.object
+                    networks = set(obj.field("exposureNetwork").targets)
+                    if obj.asset_type == "UnknownService":
+                        networks |= obj.field("network").targets
+                    network = networks.pop().target.field.object
                     network_hosts = [
                         field_target.target.field.object
                         for field_target in network.field("hosts").targets
@@ -66,7 +69,7 @@ class SecurilangValidator(Validator):
                             obj,
                             f"{host} and {network} connected to {obj} must also be connected together.",
                         )
-                except IndexError:
+                except KeyError:
                     pass
         elif self.lang.assets[obj.asset_type] <= self.lang.assets["Host"]:
             for field in {
@@ -74,12 +77,14 @@ class SecurilangValidator(Validator):
                 "rootApplicationServices",
                 "nonRootShellServices",
                 "rootShellServices",
+                "unknownServices",
             }:
                 for field_target in obj.field(field).targets:
                     self.validate_multiplicity(field_target.target.field.object)
         elif self.lang.assets[obj.asset_type] <= self.lang.assets["Network"]:
-            for field_target in obj.field("exposedServices").targets:
-                self.validate_multiplicity(field_target.target.field.object)
+            for field in {"exposedServices", "unknownServices"}:
+                for field_target in obj.field(field).targets:
+                    self.validate_multiplicity(field_target.target.field.object)
 
     def validate_association_keystore(
         self,
