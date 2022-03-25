@@ -4,7 +4,7 @@
 #
 #    ./tools/scripts/create_requirements.sh
 #
-astroid==2.9.3
+astroid==2.11.1
     # via pylint
 attrs==21.4.0
     # via
@@ -32,6 +32,8 @@ coverage==6.3.2
     # via securicad-model (setup.cfg)
 cryptography==36.0.2
     # via secretstorage
+dill==0.3.4
+    # via pylint
 docutils==0.18.1
     # via readme-renderer
 future-fstrings==1.2.0
@@ -54,7 +56,7 @@ jeepney==0.7.1
     # via
     #   keyring
     #   secretstorage
-jinja2==3.0.3
+jinja2==3.1.0
     # via pyecoregen
 jsonschema==4.4.0
     # via securicad-model (setup.cfg)
@@ -66,9 +68,9 @@ lxml==4.8.0
     # via pyecore
 markupsafe==2.1.1
     # via jinja2
-mccabe==0.6.1
+mccabe==0.7.0
     # via pylint
-mypy==0.941
+mypy==0.942
     # via securicad-model (setup.cfg)
 mypy-extensions==0.4.3
     # via
@@ -107,7 +109,7 @@ pyecoregen==0.5.1
     # via securicad-model (setup.cfg)
 pygments==2.11.2
     # via readme-renderer
-pylint==2.12.2
+pylint==2.13.0
     # via securicad-model (setup.cfg)
 pymultigen==0.2.0
     # via pyecoregen
@@ -134,15 +136,14 @@ secretstorage==3.3.1
 six==1.16.0
     # via bleach
 toml==0.10.2
-    # via
-    #   autopep8
-    #   pylint
+    # via autopep8
 tomli==2.0.1
     # via
     #   black
     #   build
     #   mypy
     #   pep517
+    #   pylint
     #   pytest
 tqdm==4.63.1
     # via twine
@@ -162,7 +163,7 @@ urllib3==1.26.9
     #   twine
 webencodings==0.5.1
     # via bleach
-wrapt==1.13.3
+wrapt==1.14.0
     # via astroid
 zipp==3.7.0
     # via
