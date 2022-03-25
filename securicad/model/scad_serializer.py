@@ -167,42 +167,48 @@ def deserialize_model(
                 BytesURI("eom", f.read())
             ).contents[0]
 
-        canvas_file = next(
-            name for name in names if name.endswith(".cmxCanvas")
-        )  # pragma: no cover
-        with zf.open(canvas_file) as f:
-            canvas: Any = resources.get_resource(  # type: ignore
-                BytesURI("canvas", f.read())
-            ).contents[0]
+        try:
+            canvas_file = next(
+                name for name in names if name.endswith(".cmxCanvas")
+            )  # pragma: no cover
+            with zf.open(canvas_file) as f:
+                canvas: Any = resources.get_resource(  # type: ignore
+                    BytesURI("canvas", f.read())
+                ).contents[0]
+        except StopIteration:
+            canvas = None
 
         try:
             with zf.open(next(name for name in names if name.endswith(".json"))) as f:
                 meta = json.load(f)
             assert meta["scadVersion"] == "1.0.0"
-            if lang:
-                utility.verify_lang(
-                    lang=lang, lang_id=meta["langID"], lang_version=meta["langVersion"]
-                )
-
-            model = Model(
-                lang=lang,
-                lang_id=meta["langID"],
-                lang_version=meta["langVersion"],
-                validate_icons=validate_icons,
-            )
         except StopIteration:
             if lang and lang.defines["id"] != SECURILANG:  # pragma: no cover
                 raise RuntimeError("MAL languages must have meta.json defined")
-            model = Model(
-                lang_id=SECURILANG,
-                lang_version=eom.xLang,
-                validate_icons=validate_icons,
+            meta = {"langID": SECURILANG, "langVersion": eom.xLang}
+
+        if lang:
+            utility.verify_lang(
+                lang=lang, lang_id=meta["langID"], lang_version=meta["langVersion"]
             )
+
+        model = Model(
+            lang=lang,
+            lang_id=meta["langID"],
+            lang_version=meta["langVersion"],
+            validate_icons=validate_icons,
+        )
 
     extract_attributes(model, eom, {"samples", "warningThreshold"})
 
     id_exported_id: dict[str, int] = {}
     for xmi_object in eom.objects:
+        if (
+            lang
+            and lang.defines["id"] == "com.foreseeti.securilang"
+            and xmi_object.metaConcept == "Container"
+        ):
+            continue
         id_exported_id[xmi_object.id] = xmi_object.exportedId
         if xmi_object.metaConcept == "Attacker":
             obj = model.create_attacker(xmi_object.name, id=xmi_object.exportedId)
@@ -309,55 +315,62 @@ def deserialize_model(
         for assoc in assocs_added:
             queue.remove(assoc)
 
-    for xmi_view in canvas.view:
-        if isinstance(xmi_view, ModelViewsPackage.ObjectView):
-            continue
-        view = model.create_view(xmi_view.name)
-        extract_attributes(view, xmi_view, {"loadOnStart"})
-        for xmi_view_node in xmi_view.viewItem:  # ViewNode -> ViewItem
-            if isinstance(xmi_view_node, ModelViewsPackage.ViewTextNode):
+    if canvas:
+        for xmi_view in canvas.view:
+            if isinstance(xmi_view, ModelViewsPackage.ObjectView):
                 continue
-            xmi_location = xmi_view_node.location  # Location -> XYPoint
-            view.add_object(
-                model.object(id_exported_id[str(xmi_view_node.id)]),
-                xmi_location.x,
-                xmi_location.y,
-            )
+            view = model.create_view(xmi_view.name)
+            extract_attributes(view, xmi_view, {"loadOnStart"})
+            for xmi_view_node in xmi_view.viewItem:  # ViewNode -> ViewItem
+                if str(xmi_view_node.id) not in id_exported_id:
+                    continue
+                if isinstance(xmi_view_node, ModelViewsPackage.ViewTextNode):
+                    continue
+                xmi_location = xmi_view_node.location  # Location -> XYPoint
+                view.add_object(
+                    model.object(id_exported_id[str(xmi_view_node.id)]),
+                    xmi_location.x,
+                    xmi_location.y,
+                )
 
-        def create_group(container: Container, id: int, x: float, y: float):
-            xmi_object_group = next(  # pragma: no cover
-                xmi_group for xmi_group in eom.groups if xmi_group.id == str(id)
-            )
-            xmi_group_layout = next(  # pragma: no cover
-                xmi_group_layout
-                for xmi_group_layout in canvas.grouplayout
-                if xmi_group_layout.id == id
-            )
-            group = container.create_group(
-                xmi_object_group.name, xmi_group_layout.icon, x, y, id=abs(id)
-            )
-            if xmi_group_layout.color:
-                group.meta["color"] = xmi_group_layout.color
-            group.meta["expand"] = xmi_object_group.expand
-            if not is_default_attribute(xmi_object_group, "attributesJsonString"):
-                group.meta["tags"] = json.loads(xmi_object_group.attributesJsonString)
-            extract_attributes(group, xmi_object_group, {"description"})
-
-            for xmi_group_item in xmi_group_layout.groupitem:  # GroupItem -> XYPoint
-                if str(xmi_group_item.id) in id_exported_id:
-                    group.add_object(
-                        model.object(id_exported_id[str(xmi_group_item.id)]),
-                        xmi_group_item.x,
-                        xmi_group_item.y,
+            def create_group(container: Container, id: int, x: float, y: float):
+                xmi_object_group = next(  # pragma: no cover
+                    xmi_group for xmi_group in eom.groups if xmi_group.id == str(id)
+                )
+                xmi_group_layout = next(  # pragma: no cover
+                    xmi_group_layout
+                    for xmi_group_layout in canvas.grouplayout
+                    if xmi_group_layout.id == id
+                )
+                group = container.create_group(
+                    xmi_object_group.name, xmi_group_layout.icon, x, y, id=abs(id)
+                )
+                if xmi_group_layout.color:
+                    group.meta["color"] = xmi_group_layout.color
+                group.meta["expand"] = xmi_object_group.expand
+                if not is_default_attribute(xmi_object_group, "attributesJsonString"):
+                    group.meta["tags"] = json.loads(
+                        xmi_object_group.attributesJsonString
                     )
-                else:
-                    create_group(
-                        group, xmi_group_item.id, xmi_group_item.x, xmi_group_item.y
-                    )
+                extract_attributes(group, xmi_object_group, {"description"})
 
-        for xmi_group_node in xmi_view.groupNode:  # GroupNode -> ViewNode
-            xmi_location = xmi_group_node.location
-            create_group(view, xmi_group_node.id, xmi_location.x, xmi_location.y)
+                for (
+                    xmi_group_item
+                ) in xmi_group_layout.groupitem:  # GroupItem -> XYPoint
+                    if str(xmi_group_item.id) in id_exported_id:
+                        group.add_object(
+                            model.object(id_exported_id[str(xmi_group_item.id)]),
+                            xmi_group_item.x,
+                            xmi_group_item.y,
+                        )
+                    else:
+                        create_group(
+                            group, xmi_group_item.id, xmi_group_item.x, xmi_group_item.y
+                        )
+
+            for xmi_group_node in xmi_view.groupNode:  # GroupNode -> ViewNode
+                xmi_location = xmi_group_node.location
+                create_group(view, xmi_group_node.id, xmi_location.x, xmi_location.y)
 
     return model
 

@@ -212,6 +212,12 @@ def deserialize_model(
 
     id_exported_id: dict[str, int] = {}
     for object_id, object_data in data["objects"].items():
+        if (
+            lang
+            and lang.defines["id"] == "com.foreseeti.securilang"
+            and object_data["metaconcept"] == "Container"
+        ):
+            continue
         id_exported_id[object_id] = object_data["eid"]
         if object_data["metaconcept"] == "Attacker":
             obj = model.create_attacker(
@@ -329,6 +335,8 @@ def deserialize_model(
         view = model.create_view(view_data["name"])
         view.meta = {"loadOnStart": view_data.get("load_on_start", True)}
         for object_id, node_data in view_data["objects"].items():
+            if object_id not in id_exported_id:
+                continue
             view.add_object(
                 model.object(id_exported_id[object_id]),
                 node_data["x"],
