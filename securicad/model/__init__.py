@@ -28,6 +28,11 @@ from .model import Model as Model
 from .object import Object as Object
 from .visual.container import Container as Container
 from .visual.group import Group as Group
+from .visual.layout import GridLayout as GridLayout
+from .visual.layout import HorizontalLayout as HorizontalLayout
+from .visual.layout import Layout as Layout
+from .visual.layout import TreeLayout as TreeLayout
+from .visual.layout import VerticalLayout as VerticalLayout
 from .visual.view import View as View
 from .visual.viewitem import ViewItem as ViewItem
 from .visual.viewobject import ViewObject as ViewObject
