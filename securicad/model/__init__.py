@@ -14,7 +14,7 @@
 
 # pyright: reportUnusedImport=false
 
-__version__ = "1.1.2"
+__version__ = "1.2.0"
 
 from . import es_serializer as es_serializer
 from . import json_serializer as json_serializer
